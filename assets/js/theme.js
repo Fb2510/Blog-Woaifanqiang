@@ -5,6 +5,23 @@
   var toggleMobile;
   var labelNode;
 
+  function randomPairColor () {
+    // 随机色相（0-360）
+    const hue = Math.floor(Math.random() * 360);
+    // 同一色相下生成两种亮度
+    const bg = `hsl(${hue}, 70%, 80%)`;  // 浅色背景
+    const text = `hsl(${hue}, 80%, 25%)`; // 深色文字
+    return { bg, text };
+  }
+
+  document.querySelectorAll('.summary-meta span').forEach(tag => {
+    const { bg, text } = randomPairColor();
+    tag.style.backgroundColor = bg;
+    tag.style.color = text;
+    tag.querySelectorAll('a').forEach(a => {
+      a.style.color = text;
+    });
+  });
   function readStored () {
     try {
       return localStorage.getItem(storageKey) || 'light';
@@ -46,6 +63,7 @@
   function toggleTheme () {
     var currentTheme = root.dataset.theme || readStored();
     var newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    console.log('主题切换:', currentTheme, '->', newTheme); // 调试信息
     applyTheme(newTheme);
     writeStored(newTheme);
   }
@@ -127,7 +145,7 @@
     }
 
     // 点击抽屉内的链接时关闭抽屉
-    var drawerLinks = drawer.querySelectorAll('.nav-link, .tag-chip');
+    var drawerLinks = drawer.querySelectorAll('.nav-link');
     drawerLinks.forEach(function (link) {
       link.addEventListener('click', closeDrawer);
     });
@@ -169,7 +187,7 @@
 
   // 简单的导航区域显示控制（用于服务器端渲染的导航）
   function initPostNavigation () {
-    const navigation = document.querySelector('.post-navigation');
+    const navigation = document.getElementById('post-navigation');
     if (!navigation) return;
 
     const hasPrev = navigation.querySelector('.prev-link');
@@ -180,129 +198,76 @@
     }
   }
 
-  // 智能文章卡片点击事件处理 
-  function initPostCardClick () {
-    var postCards = document.querySelectorAll('.post-card');
+  // 移动端电话点击事件处理
+  function initPhoneLinks () {
+    // 只在移动端添加电话点击功能
+    if (window.innerWidth <= 768) {
+      var phoneElements = document.querySelectorAll('.contact-phone');
 
-    // 检测是否为移动设备
-    var isMobile = window.innerWidth <= 768;
-    var touchStartTime = 0;
-    var touchStartX = 0;
-    var touchStartY = 0;
+      phoneElements.forEach(function (phoneElement) {
+        // 获取电话号码
+        var phoneNumber = phoneElement.textContent.trim();
 
-    postCards.forEach(function (card) {
-      // PC端点击事件
-      card.addEventListener('click', function (e) {
-        // 检查点击的是否是链接或其他可点击元素
-        var target = e.target;
-        var isClickableElement = target.tagName === 'A' ||
-          target.tagName === 'BUTTON' ||
-          target.closest('a') ||
-          target.closest('button');
+        // 添加点击事件
+        phoneElement.addEventListener('click', function () {
+          // 使用tel:协议拨打电话
+          window.location.href = 'tel:' + phoneNumber;
+        });
 
-        // 如果点击的是可点击元素，不执行跳转
-        if (isClickableElement) {
-          return;
-        }
+        // 添加触摸事件支持
+        phoneElement.addEventListener('touchstart', function (e) {
+          e.preventDefault();
+          this.style.transform = 'scale(0.95)';
+        });
 
-        // 获取文章slug并跳转
-        var slug = this.getAttribute('data-post-slug');
-        if (slug) {
-          window.location.href = '/' + slug + '.html';
-        }
+        phoneElement.addEventListener('touchend', function (e) {
+          e.preventDefault();
+          this.style.transform = 'scale(1)';
+          window.location.href = 'tel:' + phoneNumber;
+        });
       });
-
-      // 移动端触摸事件
-      if (isMobile) {
-        card.addEventListener('touchstart', function (e) {
-          touchStartTime = Date.now();
-          touchStartX = e.touches[0].clientX;
-          touchStartY = e.touches[0].clientY;
-          this.classList.add('touch-active');
-        }, { passive: true });
-
-        card.addEventListener('touchend', function (e) {
-          var touchEndTime = Date.now();
-          var touchEndX = e.changedTouches[0].clientX;
-          var touchEndY = e.changedTouches[0].clientY;
-
-          // 计算触摸距离和时间差
-          var deltaX = Math.abs(touchEndX - touchStartX);
-          var deltaY = Math.abs(touchEndY - touchStartY);
-          var deltaTime = touchEndTime - touchStartTime;
-
-          // 检查触摸的是否是链接或其他可点击元素
-          var target = e.target;
-          var isClickableElement = target.tagName === 'A' ||
-            target.tagName === 'BUTTON' ||
-            target.closest('a') ||
-            target.closest('button');
-
-          // 如果触摸的是可点击元素，不执行跳转
-          if (isClickableElement) {
-            this.classList.remove('touch-active');
-            return;
-          }
-
-          // 如果是快速点击且移动距离小，则跳转
-          if (deltaTime < 300 && deltaX < 10 && deltaY < 10) {
-            var slug = this.getAttribute('data-post-slug');
-            if (slug) {
-              window.location.href = '/' + slug + '.html';
-            }
-          }
-
-          this.classList.remove('touch-active');
-        });
-
-        card.addEventListener('touchcancel', function () {
-          this.classList.remove('touch-active');
-        });
-      }
-    });
-
-    // 监听窗口大小变化，动态调整事件处理
-    window.addEventListener('resize', function () {
-      var newIsMobile = window.innerWidth <= 768;
-      if (newIsMobile !== isMobile) {
-        isMobile = newIsMobile;
-        // 重新初始化卡片事件
-        initPostCardClick();
-      }
-    });
+    }
   }
 
-  // 监听窗口大小变化，重新绑定事件
-  function handleResize () {
-    initPostCardClick();
-  }
-
-  // 页面加载完成后初始化
   function init () {
-    // 应用存储的主题
-    applyTheme(readStored());
+    // 初始化主题 - 优先使用已设置的主题，否则使用存储的主题
+    var currentTheme = root.dataset.theme || readStored();
+    applyTheme(currentTheme);
 
     // 绑定主题切换事件
     bindThemeEvents();
 
-    // 初始化返回顶部功能
-    initBackToTop();
-
     // 初始化移动端抽屉菜单
     initMobileDrawer();
 
-    // 初始化文章导航
+    // 初始化电话链接功能
+    initPhoneLinks();
+
+    // 初始化返回顶部功能
+    initBackToTop();
+
+    // 初始化文章导航功能
     initPostNavigation();
 
-    // 初始化文章卡片点击事件
-    initPostCardClick();
+    // 延迟再次绑定事件，确保所有元素都已加载
+    setTimeout(function () {
+      bindThemeEvents();
+      // 确保主题状态正确应用
+      var finalTheme = root.dataset.theme || readStored();
+      applyTheme(finalTheme);
 
-    // 监听窗口大小变化
-    window.addEventListener('resize', handleResize);
+      // 重新初始化电话链接（防止动态加载的内容）
+      initPhoneLinks();
+      // 重新初始化文章导航（确保DOM完全加载）
+      initPostNavigation();
+    }, 100);
   }
 
-  // DOM加载完成后初始化
-  document.addEventListener('DOMContentLoaded', init);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 
   try {
     const viewer = new Viewer(document.getElementById("post-content"), {
@@ -316,5 +281,4 @@
       transition: true,
     });
   } catch (error) { }
-
-}());
+})();
