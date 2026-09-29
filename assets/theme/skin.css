@@ -1,0 +1,308 @@
+/* 二次元：胶带、纸飞机与错落手账卡片；装饰不覆盖可操作内容。 */
+:root {
+  --bg: #faf7fc;
+  --surface: #fffdfd;
+  --text: #41354f;
+  --muted: #84758d;
+  --line: #e9dfed;
+  --accent: #ac527e;
+  --soft: #f6e8f0;
+  --code: #f1eaf5;
+  --scrollbar: #cfc0d7;
+  --radius: 18px;
+  --anime-pink: #edb6ce;
+  --anime-sky: #dfeefa;
+  --anime-yellow: #f4d883;
+  --anime-grid: #ebe1f0;
+}
+:root.dark {
+  --bg: #1c1924;
+  --surface: #262130;
+  --text: #efe5f3;
+  --muted: #b6a6c0;
+  --line: #42364e;
+  --accent: #efaccd;
+  --soft: #3b2b3f;
+  --code: #211c2b;
+  --scrollbar: #65506f;
+  --anime-pink: #874a6d;
+  --anime-sky: #2e425b;
+  --anime-yellow: #c6aa58;
+  --anime-grid: #322a3d;
+}
+.theme-anime {
+  background-image: radial-gradient(var(--anime-grid) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.theme-anime .site-header {
+  background: var(--surface);
+  border-top: 4px solid var(--anime-pink);
+}
+.theme-anime .brand {
+  letter-spacing: 1px;
+}
+.theme-anime .header-inner {
+  min-height: 74px;
+}
+.anime-workspace {
+  max-width: 1230px;
+}
+.anime-cover {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(240px, 0.9fr);
+  align-items: center;
+  padding: 28px 44px;
+  border: 1px solid var(--line);
+  border-radius: 24px 24px 70px 24px;
+  background: var(--surface);
+  box-shadow: 0 8px 0 var(--soft);
+  margin: 8px 0 50px;
+}
+.anime-cover .intro-copy {
+  padding: 18px 0;
+}
+.anime-cover .intro-kicker {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  background: var(--soft);
+}
+.anime-cover h1 {
+  font-weight: 800;
+  letter-spacing: 0.025em;
+}
+.anime-illustration {
+  width: 100%;
+  max-height: 276px;
+  object-fit: contain;
+  animation: anime-drift 7s ease-in-out infinite;
+}
+.anime-stamp {
+  position: absolute;
+  bottom: -15px;
+  right: 50px;
+  padding: 8px 14px;
+  border: 2px dashed var(--accent);
+  color: var(--accent);
+  font-size: 10px;
+  line-height: 1.7;
+  letter-spacing: 3px;
+  transform: rotate(-9deg);
+  background: var(--surface);
+  border-radius: 6px;
+}
+.anime-magazine {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 254px;
+  gap: 34px;
+}
+.theme-archive .anime-magazine {
+  grid-template-columns: minmax(0, 1fr);
+}
+.anime-workspace .theme-list-title::before {
+  content: "✦";
+  margin-right: 10px;
+}
+.anime-entries {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  padding: 6px 3px;
+}
+.anime-workspace .anime-story {
+  position: relative;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 5px 18px 18px 18px;
+  background: var(--surface);
+  box-shadow: 4px 5px 0 var(--soft);
+  display: flex;
+  flex-direction: column;
+}
+.anime-story:nth-child(4n + 2) {
+  border-radius: 18px 5px 18px 18px;
+}
+.anime-story:hover {
+  transform: translateY(-4px) rotate(-0.3deg);
+  box-shadow: 5px 9px 0 var(--soft);
+}
+.anime-story::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 24px;
+  width: 46px;
+  height: 12px;
+  background: var(--anime-pink);
+  opacity: 0.8;
+  transform: rotate(-5deg);
+}
+.story-ribbon {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 6px 0 18px;
+}
+.anime-story .card-index {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--anime-pink);
+}
+.anime-story h2 {
+  font-size: 22px;
+  letter-spacing: 0;
+}
+.anime-story .card-summary {
+  font-size: 13px;
+  -webkit-line-clamp: 4;
+}
+.story-bottom {
+  margin-top: auto;
+  padding-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-top: 1px dashed var(--line);
+}
+.story-bottom .read-more {
+  font-size: 12px;
+  margin-left: auto;
+}
+.anime-workspace .home-sidebar {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  padding: 24px;
+}
+.anime-workspace .sidebar-section h2 {
+  color: var(--accent);
+}
+.anime-workspace .category-list a {
+  padding: 7px 0;
+  border-bottom: 1px dashed var(--line);
+}
+.anime-workspace .sidebar-section + .sidebar-section {
+  border-top-style: dashed;
+}
+.anime-letter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 248px;
+  gap: 36px;
+  align-items: start;
+}
+.letter-paper {
+  padding: 44px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px 28px 28px 8px;
+  box-shadow: 7px 8px 0 var(--soft);
+}
+.letter-paper .article-header {
+  border-bottom: 2px dashed var(--line);
+}
+.letter-paper .eyebrow {
+  display: inline-block;
+  background: var(--soft);
+  padding: 3px 12px;
+  border-radius: 20px;
+}
+.anime-workspace .article-rail .toc {
+  padding: 22px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 18px;
+}
+.letter-paper .prose h2 {
+  border-left: 5px solid var(--anime-pink);
+  padding-left: 14px;
+}
+.letter-paper .prose blockquote {
+  border-radius: 12px;
+  border: 0;
+  padding: 16px 22px;
+}
+.theme-anime .site-footer {
+  border-top: 1px dashed var(--line);
+}
+@keyframes anime-drift {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(1deg);
+  }
+}
+@media (max-width: 980px) {
+  .anime-magazine {
+    grid-template-columns: minmax(0, 1fr) 218px;
+    gap: 24px;
+  }
+  .anime-entries {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .anime-letter {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .letter-paper {
+    padding: 32px;
+  }
+  .anime-illustration {
+    max-height: 200px;
+  }
+}
+@media (max-width: 760px) {
+  .anime-cover {
+    padding: 26px;
+    grid-template-columns: minmax(0, 1fr);
+    border-radius: 16px 16px 44px 16px;
+    margin-bottom: 36px;
+  }
+  .anime-illustration {
+    position: static;
+    width: 100%;
+    height: 180px;
+    max-height: 180px;
+    opacity: 1;
+    margin-top: 12px;
+  }
+  .anime-cover .intro-copy {
+    padding: 0;
+  }
+  .anime-cover .intro-description {
+    max-width: 85%;
+  }
+  .anime-stamp {
+    right: 18px;
+    font-size: 9px;
+  }
+  .anime-magazine,
+  .anime-letter {
+    display: block;
+  }
+  .anime-workspace .anime-story {
+    padding: 24px;
+  }
+  .anime-story h2 {
+    font-size: 23px;
+  }
+  .letter-paper {
+    padding: 26px 20px;
+    box-shadow: 3px 5px 0 var(--soft);
+  }
+  .anime-workspace .home-rail {
+    margin-top: 28px;
+  }
+  .anime-workspace .article-rail .toc {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .anime-illustration {
+    animation: none;
+  }
+  .anime-story:hover {
+    transform: none;
+  }
+}

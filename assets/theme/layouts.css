@@ -1,0 +1,214 @@
+/* 扩展主题共用功能排版边界，各自的网格、装饰和字体在独立 skin.css 内定义。 */
+.theme-workspace {
+  width: calc(100% - 72px);
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 36px 0 60px;
+  flex: 1;
+  min-width: 0;
+}
+.theme-workspace .content-column {
+  min-width: 0;
+}
+.theme-workspace .home-sidebar {
+  border: 0;
+  padding: 0;
+}
+.theme-workspace .article-rail {
+  min-width: 0;
+}
+.theme-workspace .article-rail .toc {
+  display: block;
+  border: 0;
+  padding: 0;
+}
+.theme-workspace article {
+  min-width: 0;
+}
+.theme-workspace .article-header h1 {
+  letter-spacing: -0.02em;
+}
+.theme-intro {
+  position: relative;
+  margin-bottom: 40px;
+}
+.intro-copy {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+.intro-kicker {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  margin: 0 0 14px;
+}
+.theme-intro h1,
+.landscape-panorama h1 {
+  font-size: clamp(30px, 3.8vw, 54px);
+  line-height: 1.25;
+  margin: 0 0 16px;
+  overflow-wrap: anywhere;
+}
+.intro-description {
+  color: var(--muted);
+  max-width: 42em;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.card-meta {
+  display: flex;
+  gap: 6px 14px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  font-size: 12px;
+  color: var(--muted);
+}
+.card-meta time {
+  font-variant-numeric: tabular-nums;
+}
+.entry-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--accent);
+}
+.entry-categories:empty {
+  display: none;
+}
+.entry-categories .card-category {
+  border: 0;
+  padding: 0;
+}
+.theme-workspace .tag-list a {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+.theme-workspace .article-rail,
+.theme-workspace .home-rail {
+  align-self: start;
+}
+.theme-workspace .article-list .empty {
+  grid-column: 1 / -1;
+}
+.theme-workspace .ad-slot {
+  align-content: start;
+}
+.theme-workspace .site-banners {
+  margin-bottom: 26px;
+}
+.theme-workspace .card-index {
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+.theme-workspace .card-summary {
+  -webkit-line-clamp: 3;
+}
+.theme-workspace .breadcrumbs {
+  margin-bottom: 26px;
+}
+.theme-workspace .article-header {
+  margin-bottom: 32px;
+}
+.reading-index {
+  min-width: 0;
+  align-self: start;
+  font-size: 13px;
+}
+.index-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.index-heading span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.reading-index nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+.reading-index nav a {
+  padding: 6px 10px;
+  border-radius: 5px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.reading-index nav a:hover,
+.reading-index nav a[aria-current] {
+  background: var(--soft);
+  color: var(--accent);
+}
+.index-home {
+  display: block;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--accent);
+}
+.theme-workspace .theme-list-heading {
+  gap: 10px;
+}
+.theme-workspace .theme-list-count {
+  letter-spacing: 0;
+}
+.theme-workspace .archive-header h1 {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 980px) {
+  .theme-workspace {
+    width: calc(100% - 48px);
+  }
+  .theme-workspace .article-rail {
+    margin-top: 0;
+  }
+  .theme-workspace .article-rail .toc {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .theme-workspace {
+    width: calc(100% - 32px);
+    padding-top: 22px;
+    padding-bottom: 36px;
+  }
+  .theme-intro {
+    margin-bottom: 26px;
+  }
+  .theme-intro h1 {
+    font-size: 32px;
+  }
+  .theme-workspace .article-rail {
+    margin-top: 24px;
+  }
+  .theme-home .card-category {
+    display: none;
+  }
+  .theme-workspace .home-sidebar {
+    display: none;
+  }
+  .reading-index {
+    display: none;
+  }
+  .theme-workspace .card-meta {
+    font-size: 11px;
+    gap: 4px 10px;
+  }
+  .theme-workspace .article-header h1 {
+    font-size: 30px;
+  }
+  .theme-list-count {
+    font-size: 10px;
+  }
+  .theme-workspace .article-rail .ad-slot {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

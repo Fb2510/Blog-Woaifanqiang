@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>机场是什么？节点、订阅链接和客户端一次讲清 · 小六有点六</title>
+<meta name="description" content="机场是什么，节点、订阅链接和客户端有什么区别？用通俗语言解释四者分工、订阅更新和常见入门问题，附官方资料及使用检查清单。">
+<meta name="keywords" content="机场是什么,机场入门,机场节点,订阅链接,代理客户端">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://woaifanqiang.blog/posts/airport-basics/">
+<meta property="og:title" content="机场是什么？节点、订阅链接和客户端一次讲清">
+<meta property="og:description" content="机场是什么，节点、订阅链接和客户端有什么区别？用通俗语言解释四者分工、订阅更新和常见入门问题，附官方资料及使用检查清单。">
+<meta property="og:url" content="https://woaifanqiang.blog/posts/airport-basics/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="机场是什么？节点、订阅链接和客户端一次讲清">
+<meta name="twitter:description" content="机场是什么，节点、订阅链接和客户端有什么区别？用通俗语言解释四者分工、订阅更新和常见入门问题，附官方资料及使用检查清单。">
+<meta name="twitter:image" content="https://woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-09-30T00:17:19&#43;08:00"><meta property="article:modified_time" content="2026-09-30T00:31:32&#43;08:00"><meta property="article:tag" content="新手入门"><meta property="article:tag" content="订阅管理">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://woaifanqiang.blog/posts/airport-basics/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-09-30T00:31:32+08:00","datePublished":"2026-09-30T00:17:19+08:00","description":"机场是什么，节点、订阅链接和客户端有什么区别？用通俗语言解释四者分工、订阅更新和常见入门问题，附官方资料及使用检查清单。","headline":"机场是什么？节点、订阅链接和客户端一次讲清","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://woaifanqiang.blog/posts/airport-basics/","@type":"WebPage"},"url":"https://woaifanqiang.blog/posts/airport-basics/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://woaifanqiang.blog/posts/airport-basics/","name":"机场是什么？节点、订阅链接和客户端一次讲清","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/search.css"><script defer src="https://woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+
+<script defer src="https://woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+
+
+</head>
+
+<body class="theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://woaifanqiang.blog/"><img src="https://woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="article-viewport"><div class="article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">机场是什么？节点、订阅链接和客户端一次讲清</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">机场是什么？节点、订阅链接和客户端一次讲清</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-09-30T00:17:19&#43;08:00">2026-09-30</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>第一次看机场教程，最容易遇到的困惑是：客户端已经装好了，为什么还要订阅？节点列表里有几十个名字，又该选哪一个？</p>
+<p>先记住这句话：<strong>机场提供服务，节点是可选的连接入口，订阅负责交付配置，客户端负责在你的设备上使用这些配置。</strong> 四者分工不同，分清以后，大部分教程都会容易理解。</p>
+<h2 id="heading">机场、节点、订阅和客户端分别是什么</h2>
+<p>网络社区里说的“机场”，通常指提供代理节点订阅的服务。这是社区俗称，不能单凭这个名字判断服务质量。</p>
+<p>代理的基础作用，是在设备与目标服务之间转发请求。你可以把它理解为多经过一个中间站；具体如何连接、是否加密，取决于所用协议与配置。<a href="https://developer.mozilla.org/en-US/docs/Glossary/Proxy_server">MDN 对代理服务器的解释</a>介绍了这个基本概念。</p>
+<table>
+<thead>
+<tr>
+<th>常见叫法</th>
+<th>通俗理解</th>
+<th>你通常会看到什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>机场服务</td>
+<td>管理节点与套餐的服务方</td>
+<td>账户、套餐、使用说明</td>
+</tr>
+<tr>
+<td>节点</td>
+<td>客户端中一项可选的连接配置</td>
+<td>地区名称、协议、延迟</td>
+</tr>
+<tr>
+<td>订阅链接</td>
+<td>获取和更新配置的入口</td>
+<td>一段专属网址</td>
+</tr>
+<tr>
+<td>客户端</td>
+<td>读取配置并处理连接的软件</td>
+<td>配置页、节点列表、连接记录</td>
+</tr>
+</tbody>
+</table>
+<p>这里的“节点”不一定与一台独立服务器一一对应。不同名称也可能使用相同的入口、出口或部分线路，因此节点数量不能直接代表备用能力。</p>
+<h2 id="heading-1">为什么装了客户端，还是不能正常使用</h2>
+<p>安装客户端只是准备好了工具。它还需要正确的配置、可用的服务，以及符合当前应用的连接方式。</p>
+<p>可以按这个顺序检查：</p>
+<ol>
+<li>服务账户是否有效，套餐是否还有可用流量。</li>
+<li>导入的配置是否适配这个客户端。</li>
+<li>节点列表是否已经更新成功。</li>
+<li>当前策略组是否选中了可用节点。</li>
+<li>要使用的应用是否确实经过客户端。</li>
+</ol>
+<p>“软件能打开”“能看到节点”和“目标网站能访问”是三个不同的检查点。排查时把它们分开，会比反复重装省事。</p>
+<h2 id="heading-2">订阅更新和节点连接不是同一件事</h2>
+<p>订阅更新，是客户端下载最新的配置；节点连接，是客户端按照配置连接服务。前者成功，不代表后者一定成功。</p>
+<p>以 Mihomo 为例，官方文档将代理集合的下载地址、更新间隔与节点健康检查分别配置。也就是说，更新配置和检查连接本来就是不同的操作。<a href="https://wiki.metacubex.one/config/proxy-providers/">查看 Mihomo 代理集合文档</a>。</p>
+<p>如果提示更新成功，但所有节点都超时，下一步应检查账户、节点和本地网络。如果连配置都下载不了，则应先检查订阅地址与更新错误。</p>
+<h2 id="heading-3">节点名称和延迟，应该怎么看</h2>
+<p>名称适合帮助你识别分组，不能当作线路质量证明。“高速”“专线”等描述，需要结合服务说明和实际使用验证。</p>
+<p>延迟数字也要结合测试方式看。同一个节点，在不同客户端、不同测试目标下，数值可能不同。它只是选择时的一项参考，不能替代实际打开网页、传输文件或在线通话的体验。</p>
+<p>第一次使用，可以先选少量节点，分别在自己常用的时间和网络下观察。没必要把整个列表轮流测速，更没必要因为一次数字变化就重新购买服务。</p>
+<h2 id="heading-4">新手最容易混淆的三个问题</h2>
+<h3 id="heading-5">买了客户端，就等于买了机场服务吗？</h3>
+<p>不一定。客户端和服务可能由不同主体提供，也可能分别收费。先看购买页面到底包含软件、服务，还是两者都有。</p>
+<h3 id="heading-6">同一份订阅能在手机和电脑上用吗？</h3>
+<p>要同时看配置兼容性与套餐限制。某个格式能导入，不代表服务允许任意数量设备同时在线。</p>
+<h3 id="heading-7">订阅更新失败，要不要一直点刷新？</h3>
+<p>先读错误提示，再检查账户与配置地址。持续刷新通常不能解决过期、权限或格式错误，还可能触发服务方的请求限制。</p>
+<h2 id="heading-8">开始前，先给自己留一张小卡片</h2>
+<p>把客户端名称与版本、套餐到期日、流量重置日、常用节点名称记下来。遇到问题时，这些信息比“突然不能用了”更容易帮助你定位原因。</p>
+<p>想继续了解，可以看本站的<a href="https://woaifanqiang.blog/posts/airport-plan-checklist/">机场套餐选择清单</a>；已经遇到连接问题，可以从<a href="https://woaifanqiang.blog/posts/airport-connection-troubleshooting/">节点连不上排查指南</a>开始。</p>
+<p><strong>有看不懂的节点或客户端术语，可以通过 <a href="https://t.me/oldsix985">Telegram 联系我</a>交流。</strong> 附上客户端名称和具体疑问即可，不需要提供订阅链接或账户密码。</p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://woaifanqiang.blog/tags/getting-started/"># 新手入门</a><a href="https://woaifanqiang.blog/tags/subscription-management/"># 订阅管理</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://woaifanqiang.blog/posts/airport-plan-checklist/">← 上一篇</a></nav>
+
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#heading">机场、节点、订阅和客户端分别是什么</a><a class="level-2" href="#heading-1">为什么装了客户端，还是不能正常使用</a><a class="level-2" href="#heading-2">订阅更新和节点连接不是同一件事</a><a class="level-2" href="#heading-3">节点名称和延迟，应该怎么看</a><a class="level-2" href="#heading-4">新手最容易混淆的三个问题</a><a class="level-3" href="#heading-5">买了客户端，就等于买了机场服务吗？</a><a class="level-3" href="#heading-6">同一份订阅能在手机和电脑上用吗？</a><a class="level-3" href="#heading-7">订阅更新失败，要不要一直点刷新？</a><a class="level-2" href="#heading-8">开始前，先给自己留一张小卡片</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+
+
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://woaifanqiang.blog/pagefind/" base-url="https://woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":false,"likes":true,"locale":"zh-CN","pageKey":"/p/f7c90bd0-f29d-49bb-8dc7-34f10dfa9b7b/","pageTitle":"机场是什么？节点、订阅链接和客户端一次讲清","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>

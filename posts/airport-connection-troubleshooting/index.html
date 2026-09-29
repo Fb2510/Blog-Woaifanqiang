@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>机场节点连不上怎么办？从订阅到 DNS 的排查顺序 · 小六有点六</title>
+<meta name="description" content="机场节点连不上怎么办？区分订阅更新失败、导入错误、节点超时和应用连接异常，按基础网络、账户、配置与 DNS 逐步缩小问题范围。">
+<meta name="keywords" content="机场节点连不上,节点超时,订阅更新失败,客户端排障,DNS解析失败">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://woaifanqiang.blog/posts/airport-connection-troubleshooting/">
+<meta property="og:title" content="机场节点连不上怎么办？从订阅到 DNS 的排查顺序">
+<meta property="og:description" content="机场节点连不上怎么办？区分订阅更新失败、导入错误、节点超时和应用连接异常，按基础网络、账户、配置与 DNS 逐步缩小问题范围。">
+<meta property="og:url" content="https://woaifanqiang.blog/posts/airport-connection-troubleshooting/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="机场节点连不上怎么办？从订阅到 DNS 的排查顺序">
+<meta name="twitter:description" content="机场节点连不上怎么办？区分订阅更新失败、导入错误、节点超时和应用连接异常，按基础网络、账户、配置与 DNS 逐步缩小问题范围。">
+<meta name="twitter:image" content="https://woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-09-30T00:17:19&#43;08:00"><meta property="article:modified_time" content="2026-09-30T00:32:17&#43;08:00"><meta property="article:tag" content="使用排障"><meta property="article:tag" content="订阅管理">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://woaifanqiang.blog/posts/airport-connection-troubleshooting/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-09-30T00:32:17+08:00","datePublished":"2026-09-30T00:17:19+08:00","description":"机场节点连不上怎么办？区分订阅更新失败、导入错误、节点超时和应用连接异常，按基础网络、账户、配置与 DNS 逐步缩小问题范围。","headline":"机场节点连不上怎么办？从订阅到 DNS 的排查顺序","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://woaifanqiang.blog/posts/airport-connection-troubleshooting/","@type":"WebPage"},"url":"https://woaifanqiang.blog/posts/airport-connection-troubleshooting/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://woaifanqiang.blog/posts/airport-connection-troubleshooting/","name":"机场节点连不上怎么办？从订阅到 DNS 的排查顺序","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/search.css"><script defer src="https://woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+
+<script defer src="https://woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+
+
+</head>
+
+<body class="theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://woaifanqiang.blog/"><img src="https://woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="article-viewport"><div class="article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">机场节点连不上怎么办？从订阅到 DNS 的排查顺序</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">机场节点连不上怎么办？从订阅到 DNS 的排查顺序</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-09-30T00:17:19&#43;08:00">2026-09-30</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>机场节点突然连不上，反复换节点、重装客户端，常常只会让问题更难定位。更有效的做法，是先分清哪一步出了问题。</p>
+<p><strong>排查顺序可以记成：基础网络 → 账户与订阅 → 单个节点 → 应用连接方式 → DNS 与错误日志。</strong> 每次只改一项，观察结果后再继续。</p>
+<h2 id="heading">第一步：先确认基础网络能用</h2>
+<p>先保留当前设置记录，再通过客户端正常关闭系统代理或 TUN，测试平时可以直接访问的网页。如果基础连接也不通，应先检查 Wi-Fi、路由器、宽带或移动网络。</p>
+<p>注意，“退出软件”和“恢复网络设置”未必是一回事。退出前后，可以检查系统代理是否还指向本机端口。Windows 把代理作为单独的网络设置项目，提供自动、脚本与手动等配置方式。<a href="https://support.microsoft.com/en-us/windows/experience/connectivity-networking/use-a-proxy-server-in-windows">查看 Microsoft 官方说明</a>。</p>
+<p>修改前记下原值；如果是单位统一配置的设备，先核对管理要求，不要随意删除既有设置。</p>
+<h2 id="heading-1">第二步：区分订阅失败和节点失败</h2>
+<p>先观察客户端提示的是哪一种情况。</p>
+<table>
+<thead>
+<tr>
+<th>现象</th>
+<th>优先检查</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>无法下载订阅</td>
+<td>地址是否完整、账户是否有效、更新连接是否可达</td>
+</tr>
+<tr>
+<td>下载成功但导入报错</td>
+<td>返回内容与客户端格式是否匹配</td>
+</tr>
+<tr>
+<td>节点列表正常但连接失败</td>
+<td>套餐状态、节点状态、本地网络</td>
+</tr>
+<tr>
+<td>只有部分节点异常</td>
+<td>换一个节点做同条件对照</td>
+</tr>
+<tr>
+<td>网页正常但某个应用失败</td>
+<td>应用是否经过客户端、规则是否匹配</td>
+</tr>
+</tbody>
+</table>
+<p>导入报错时，不要只盯着节点。一个失效的订阅地址可能返回错误页，而客户端需要的是配置内容。先记录错误类型，再核对服务方提供的对应客户端入口。</p>
+<p>如果账户页面显示流量已用完或套餐已到期，应先处理账户状态。换 DNS 或重装软件通常不能解决这类问题。</p>
+<h2 id="heading-2">第三步：用单个变量做对照</h2>
+<p>假设节点 A 失败，先保持设备、网络与目标网页不变，仅换到节点 B。然后，再用同一设备切换到自己的另一种可用网络，重复测试。</p>
+<p>这些结果可以帮助缩小范围：</p>
+<ul>
+<li>只有 A 异常，B 正常：优先检查 A 或它使用的路径。</li>
+<li>同一网络下多个节点异常，换网络后恢复：优先检查原网络环境及其连接条件。</li>
+<li>同一网络里手机正常、电脑异常：优先检查电脑上的配置与软件状态。</li>
+</ul>
+<p>这些都是定位线索，不是最终证明。若同时更换网络、客户端、节点和配置，恢复后也很难知道是哪一步起了作用。</p>
+<h2 id="heading-3">第四步：确认应用实际走了哪条连接</h2>
+<p>浏览器能用，其他软件不能用，可能是它们采用了不同的代理设置。可以在客户端的连接记录或日志里，观察目标应用是否出现，以及实际匹配了哪条规则。</p>
+<p>也要确认当前没有多个工具同时修改系统代理或路由。为了测试而临时关闭其中一个时，记下原设置，测试完再按需要恢复。</p>
+<p>规则、全局与 TUN 解决的问题不同，不能只靠把开关全部打开来排查。具体区别可以看<a href="https://woaifanqiang.blog/posts/rule-global-tun-guide/">规则模式、全局模式和 TUN 指南</a>。</p>
+<h2 id="-dns-">第五步：看到 DNS 或证书错误，再针对性处理</h2>
+<p>DNS 负责把域名转换成用于连接的地址。如果日志反复出现解析失败，问题可能发生在建立目标连接之前。<a href="https://www.cloudflare.com/learning/dns/what-is-dns/">Cloudflare 的 DNS 说明</a>解释了这一过程。</p>
+<p>这时应核对当前配置的 DNS 设置、上游是否可达，以及是否存在重复或冲突的设置。不要把随机搜索到的 DNS 地址逐个粘贴进去；先记录旧值，每次只验证一个改动。</p>
+<p>遇到证书错误，则应核对设备时间、客户端版本和服务方配置。不要把跳过证书验证当作通用修复。Mihomo 文档明确将该选项定义为跳过证书校验，它并不会修正证书本身的问题。<a href="https://wiki.metacubex.one/config/proxies/tls/#skip-cert-verify">查看 TLS 配置说明</a>。</p>
+<h2 id="heading-4">什么情况下，应该停止试错</h2>
+<p>如果已经确认基础网络正常、账户有效、配置来自正确入口，多个节点仍持续失败，就该保留错误信息并联系服务方。继续清空配置或反复重装，可能丢掉有用的线索。</p>
+<p>求助时可以按这个格式描述：设备与系统、客户端版本、网络类型、出错时间、错误提示，以及已尝试的两三项对照操作。只截必要的错误片段，避免直接发完整日志和订阅配置。</p>
+<p>如果只是变慢而不是完全连不上，可先看<a href="https://woaifanqiang.blog/posts/node-speed-test-guide/">节点测速与晚高峰判断方法</a>。</p>
+<p><strong>按顺序检查后仍拿不准，可以通过 <a href="https://t.me/oldsix985">Telegram 联系我</a>交流排查思路。</strong> 请提供脱敏的错误提示，不要发送密码、验证码或完整订阅链接。</p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a><a href="https://woaifanqiang.blog/tags/subscription-management/"># 订阅管理</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://woaifanqiang.blog/posts/rule-global-tun-guide/">← 上一篇</a><a href="https://woaifanqiang.blog/posts/node-speed-test-guide/">下一篇 →</a></nav>
+
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#heading">第一步：先确认基础网络能用</a><a class="level-2" href="#heading-1">第二步：区分订阅失败和节点失败</a><a class="level-2" href="#heading-2">第三步：用单个变量做对照</a><a class="level-2" href="#heading-3">第四步：确认应用实际走了哪条连接</a><a class="level-2" href="#-dns-">第五步：看到 DNS 或证书错误，再针对性处理</a><a class="level-2" href="#heading-4">什么情况下，应该停止试错</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+
+
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://woaifanqiang.blog/pagefind/" base-url="https://woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":false,"likes":true,"locale":"zh-CN","pageKey":"/p/30e3ece6-ed09-435e-90b3-6ff4742ecdfe/","pageTitle":"机场节点连不上怎么办？从订阅到 DNS 的排查顺序","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>
