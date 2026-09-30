@@ -2,11 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.woaifanqiang.blog/</loc>
-    <lastmod>2026-09-29T17:24:49Z</lastmod>
+    <lastmod>2026-09-30T04:52:27Z</lastmod>
   </url>
   <url>
     <loc>https://www.woaifanqiang.blog/categories/airport-guides/</loc>
-    <lastmod>2026-09-29T17:24:49Z</lastmod>
+    <lastmod>2026-09-30T04:52:27Z</lastmod>
   </url>
   <url>
     <loc>https://www.woaifanqiang.blog/posts/airport-basics/</loc>
@@ -21,6 +21,10 @@
     <lastmod>2026-09-29T16:31:54Z</lastmod>
   </url>
   <url>
+    <loc>https://www.woaifanqiang.blog/posts/daily-2026-09-30-proxy-group-selection/</loc>
+    <lastmod>2026-09-30T04:50:32Z</lastmod>
+  </url>
+  <url>
     <loc>https://www.woaifanqiang.blog/posts/node-speed-test-guide/</loc>
     <lastmod>2026-09-29T16:32:04Z</lastmod>
   </url>
@@ -30,11 +34,11 @@
   </url>
   <url>
     <loc>https://www.woaifanqiang.blog/posts/subscription-link-safety/</loc>
-    <lastmod>2026-09-29T16:32:41Z</lastmod>
+    <lastmod>2026-09-30T04:52:27Z</lastmod>
   </url>
   <url>
     <loc>https://www.woaifanqiang.blog/tags/getting-started/</loc>
-    <lastmod>2026-09-29T17:24:49Z</lastmod>
+    <lastmod>2026-09-30T04:52:27Z</lastmod>
   </url>
   <url>
     <loc>https://www.woaifanqiang.blog/tags/node-testing/</loc>
@@ -46,6 +50,6 @@
   </url>
   <url>
     <loc>https://www.woaifanqiang.blog/tags/troubleshooting/</loc>
-    <lastmod>2026-09-29T17:24:49Z</lastmod>
+    <lastmod>2026-09-30T04:52:27Z</lastmod>
   </url>
 </urlset>
