@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>开了代理还要改 DNS 吗？系统、浏览器和客户端 DNS 的区别 · 小六有点六</title>
+<meta name="description" content="开了代理还要改 DNS 吗？解释系统 DNS、浏览器安全 DNS 和 Mihomo 客户端 DNS 的区别，说明 Chrome 代理侧解析、节点域名解析与自定义 DNS 故障的检查方法。">
+<meta name="keywords" content="代理DNS设置,机场DNS排查,浏览器安全DNS,Mihomo DNS,节点域名解析">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-10-02-proxy-dns-settings/">
+<meta property="og:title" content="开了代理还要改 DNS 吗？系统、浏览器和客户端 DNS 的区别">
+<meta property="og:description" content="开了代理还要改 DNS 吗？解释系统 DNS、浏览器安全 DNS 和 Mihomo 客户端 DNS 的区别，说明 Chrome 代理侧解析、节点域名解析与自定义 DNS 故障的检查方法。">
+<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-10-02-proxy-dns-settings/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="开了代理还要改 DNS 吗？系统、浏览器和客户端 DNS 的区别">
+<meta name="twitter:description" content="开了代理还要改 DNS 吗？解释系统 DNS、浏览器安全 DNS 和 Mihomo 客户端 DNS 的区别，说明 Chrome 代理侧解析、节点域名解析与自定义 DNS 故障的检查方法。">
+<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-10-02T11:00:00&#43;08:00"><meta property="article:modified_time" content="2026-10-02T14:19:52&#43;08:00"><meta property="article:tag" content="新手入门"><meta property="article:tag" content="使用排障">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-02-proxy-dns-settings/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-10-02T14:19:52+08:00","datePublished":"2026-10-02T11:00:00+08:00","description":"开了代理还要改 DNS 吗？解释系统 DNS、浏览器安全 DNS 和 Mihomo 客户端 DNS 的区别，说明 Chrome 代理侧解析、节点域名解析与自定义 DNS 故障的检查方法。","headline":"开了代理还要改 DNS 吗？系统、浏览器和客户端 DNS 的区别","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-02-proxy-dns-settings/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-02-proxy-dns-settings/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-10-02-proxy-dns-settings/","name":"开了代理还要改 DNS 吗？系统、浏览器和客户端 DNS 的区别","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+
+
+</head>
+
+<body class="reader-page theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">开了代理还要改 DNS 吗？系统、浏览器和客户端 DNS 的区别</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">开了代理还要改 DNS 吗？系统、浏览器和客户端 DNS 的区别</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-10-02T11:00:00&#43;08:00">2026-10-02</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>开了代理，不一定还要手动修改 DNS。如果当前网页和应用都能正常连接，可以先保留现有设置。出现“找不到服务器地址”或解析超时，再判断问题发生在系统、浏览器还是机场客户端，通常比同时换掉三个位置的 DNS 更容易定位。</p>
+<p>本文以家用 Windows 电脑、桌面版 Chrome 和使用 Mihomo 内核的客户端为例。不同软件的解析方式可能不同，配置字段不能直接照搬。</p>
+<p>作者：小六｜资料核对日期：2026年10月2日</p>
+<h2 id="-dns-">三处 DNS 设置，分别影响什么？</h2>
+<p>DNS 的基本作用，是把域名查成连接所需的地址，类似先查到目的地再出发。查到地址后，连接是否经过代理、走哪个节点，还要看应用和客户端的处理方式。基础概念可参考 <a href="https://www.cloudflare.com/learning/dns/what-is-dns/">Cloudflare 的 DNS 说明</a>。</p>
+<table>
+<thead>
+<tr>
+<th>设置位置</th>
+<th>主要作用</th>
+<th>先检查什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>系统 DNS</td>
+<td>为使用系统解析的请求提供解析设置</td>
+<td>当前网络的 DNS 是自动获取还是手动填写</td>
+</tr>
+<tr>
+<td>浏览器安全 DNS</td>
+<td>在浏览器自行进行相关查询时，使用加密解析</td>
+<td>是否选了自定义提供商，查询服务是否可达</td>
+</tr>
+<tr>
+<td>客户端 DNS</td>
+<td>按客户端配置处理它负责的域名解析</td>
+<td>当前生效配置、解析对象和上游连接路径</td>
+</tr>
+</tbody>
+</table>
+<p>这三项不是每次访问都依次使用。应用可能自行查询，也可能把目标域名交给代理处理；客户端是否负责系统发出的查询，还取决于接管方式。</p>
+<p>微软说明，Windows 使用自动获取时，可由路由器或接入点配置 IP 与 DNS；手动方式则可以指定 DNS。检查的是当前连接对应的网络设置，换 Wi-Fi 后也要重新核对。见<a href="https://support.microsoft.com/en-us/windows/experience/connectivity-networking/essential-network-settings-and-tasks-in-windows">微软网络设置说明</a>。</p>
+<h2 id="-dns">浏览器安全 DNS，为什么不一定决定代理网页的解析？</h2>
+<p>一个容易忽略的情况是：Chrome 通过 HTTP 代理访问目标网站时，会把目标名称的解析交给代理侧；使用 SOCKS5 代理时，Chrome 也采用代理侧解析。这是 <a href="https://chromium.googlesource.com/chromium/src/%2Bshow/main/net/docs/proxy.md">Chromium 代理文档</a>明确说明的行为。</p>
+<p>这里的“代理侧”可能先是电脑上的本地客户端，不代表一定由远端机场节点完成所有查询。后续还要看客户端规则与协议。因此，修改浏览器的安全 DNS，并不一定会改变这类请求的目标解析。</p>
+<h3 id="heading">自动模式和自定义提供商有什么区别？</h3>
+<p>对于浏览器自行进行的相关查询，Chrome 的自动安全 DNS 模式遇到解析问题时，可以回到未加密查询；选定自定义提供商后，则不会默认这样回退。见 <a href="https://support.google.com/chrome/answer/10468685?co=GENIE.Platform%3DDesktop&amp;hl=zh-Hans">Chrome 官方安全 DNS 说明</a>。</p>
+<p>如果刚填写了自定义提供商，某些直连页面开始提示地址找不到，可以先记录原值，再恢复先前设置做对照。桌面版入口在“设置 → 隐私与安全 → 安全”中的相关选项，具体界面以当前版本为准。</p>
+<p>同一网站在两个浏览器中的结果不同，也只是排查线索：代理设置、扩展和缓存可能不同，不能直接认定是 DNS。</p>
+<h2 id="heading-1">客户端里，节点域名和网站域名要分开看</h2>
+<p>机场节点本身也可能使用域名。客户端要连接节点，就需要先处理这个地址；它与随后访问的网站域名是两个不同的对象。</p>
+<p>以 Mihomo 为例，几个容易看错的字段是：</p>
+<ul>
+<li><code>nameserver</code>：默认的域名解析服务器。</li>
+<li><code>proxy-server-nameserver</code>：用于代理节点域名解析。</li>
+<li><code>default-nameserver</code>：用于解析 DNS 服务器自身的域名，不能仅凭名称把它当成所有查询的统一入口。</li>
+</ul>
+<p>官方文档还提醒，DNS 查询若需要通过代理，应配置节点域名的解析方式，以免出现“连上节点才能查询，但查询成功才能连上节点”的相互等待。字段用途见 <a href="https://wiki.metacubex.one/config/dns/">Mihomo DNS 配置文档</a>。</p>
+<p>这意味着：节点域名解析失败时，优先查节点的解析链路；节点已经连接成功，只有某个网站异常时，则继续查该目标的连接与规则。不要把整份 DNS 配置替换成网上的模板。</p>
+<h2 id="heading-2">按四步判断，究竟要改哪一处</h2>
+<ol>
+<li><strong>记录现象。</strong> 写下出错应用、目标域名、时间和完整错误类型，区分解析失败、连接超时与证书错误。</li>
+<li><strong>确认生效配置。</strong> 检查当前订阅、节点、系统代理或 TUN 状态，并观察客户端连接记录；先弄清请求是否进入客户端。可结合本站的<a href="https://www.woaifanqiang.blog/posts/rule-global-tun-guide/">分流模式与 TUN 指南</a>判断。</li>
+<li><strong>只改相关的一项。</strong> 如果问题紧接着一次 DNS 设置改动出现，先恢复该项原值，在相同节点、网络和目标下对照。不要同时修改系统 DNS、浏览器设置和客户端上游。</li>
+<li><strong>用证据决定后续操作。</strong> 记录改前、改后的错误和连接路径。没有解析错误、主要表现为持续下载慢时，再检查节点路径和网络性能，不必继续随机换 DNS。</li>
+</ol>
+<p>临时恢复设置后能打开网页，说明这项改动值得继续调查；它还不能证明某个 DNS 服务始终更快或更可靠。测试结束后，应保留符合实际需求且已经核对的配置。</p>
+<h2 id="-dns-1">开启加密 DNS，就等于全部连接走代理吗？</h2>
+<p>不能这样判断。加密 DNS 保护的是相应的查询过程，代理处理的是连接路径，两者解决的问题不同。要知道应用实际走了哪里，仍应结合连接记录与配置检查。</p>
+<p>遇到完全连不上的情况，可以按本站的<a href="https://www.woaifanqiang.blog/posts/airport-connection-troubleshooting/">机场连接排查顺序</a>继续检查账户、订阅和节点状态。账户到期或节点故障，也不会因更换解析服务器而自动恢复。</p>
+<p>如果你拿不准该检查哪一处 DNS，可以带上客户端名称、连接方式和脱敏后的错误提示交流。无需发送订阅链接或完整配置：<a href="https://t.me/oldsix985">Telegram 联系我</a></p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/getting-started/"># 新手入门</a><a href="https://www.woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><span></span><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-01-traffic-usage-troubleshooting/">下一篇 →</a></nav>
+
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#-dns-">三处 DNS 设置，分别影响什么？</a><a class="level-2" href="#-dns">浏览器安全 DNS，为什么不一定决定代理网页的解析？</a><a class="level-3" href="#heading">自动模式和自定义提供商有什么区别？</a><a class="level-2" href="#heading-1">客户端里，节点域名和网站域名要分开看</a><a class="level-2" href="#heading-2">按四步判断，究竟要改哪一处</a><a class="level-2" href="#-dns-1">开启加密 DNS，就等于全部连接走代理吗？</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a></nav>
+
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":false,"likes":true,"locale":"zh-CN","pageKey":"/p/04d2bb07-05c6-4d26-a89b-511c4ba20c8b/","pageTitle":"开了代理还要改 DNS 吗？系统、浏览器和客户端 DNS 的区别","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>
