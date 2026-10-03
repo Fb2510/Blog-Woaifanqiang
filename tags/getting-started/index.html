@@ -20,7 +20,7 @@
 <meta name="twitter:description" content="从节点、订阅与客户端的基础概念入手，看懂机场套餐和常见连接模式。">
 <meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
 
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/tags/getting-started/#collection","@type":"CollectionPage","description":"从节点、订阅与客户端的基础概念入手，看懂机场套餐和常见连接模式。","inLanguage":"zh-CN","mainEntity":{"@type":"ItemList","itemListElement":[{"@type":"ListItem","name":"开了代理还要改 DNS 吗？系统、浏览器和客户端 DNS 的区别","position":1,"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-02-proxy-dns-settings/"},{"@type":"ListItem","name":"机场流量消耗太快怎么办？后台同步、测速与计费差异排查","position":2,"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-01-traffic-usage-troubleshooting/"},{"@type":"ListItem","name":"机场节点策略组怎么选？自动选择、故障转移和负载均衡的区别","position":3,"url":"https://www.woaifanqiang.blog/posts/daily-2026-09-30-proxy-group-selection/"},{"@type":"ListItem","name":"规则模式、全局模式和 TUN 有什么区别？新手分流指南","position":4,"url":"https://www.woaifanqiang.blog/posts/rule-global-tun-guide/"},{"@type":"ListItem","name":"机场套餐怎么选？流量、倍率与设备限制的对照清单","position":5,"url":"https://www.woaifanqiang.blog/posts/airport-plan-checklist/"},{"@type":"ListItem","name":"机场是什么？节点、订阅链接和客户端一次讲清","position":6,"url":"https://www.woaifanqiang.blog/posts/airport-basics/"}]},"name":"新手入门","url":"https://www.woaifanqiang.blog/tags/getting-started/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/tags/getting-started/","name":"新手入门","position":2}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/tags/getting-started/#collection","@type":"CollectionPage","description":"从节点、订阅与客户端的基础概念入手，看懂机场套餐和常见连接模式。","inLanguage":"zh-CN","mainEntity":{"@type":"ItemList","itemListElement":[{"@type":"ListItem","name":"机场节点支持 UDP 吗？网页正常但语音、游戏连不上的排查方法","position":1,"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-03-udp-connectivity-troubleshooting/"},{"@type":"ListItem","name":"开了代理还要改 DNS 吗？系统、浏览器和客户端 DNS 的区别","position":2,"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-02-proxy-dns-settings/"},{"@type":"ListItem","name":"机场流量消耗太快怎么办？后台同步、测速与计费差异排查","position":3,"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-01-traffic-usage-troubleshooting/"},{"@type":"ListItem","name":"机场节点策略组怎么选？自动选择、故障转移和负载均衡的区别","position":4,"url":"https://www.woaifanqiang.blog/posts/daily-2026-09-30-proxy-group-selection/"},{"@type":"ListItem","name":"规则模式、全局模式和 TUN 有什么区别？新手分流指南","position":5,"url":"https://www.woaifanqiang.blog/posts/rule-global-tun-guide/"},{"@type":"ListItem","name":"机场套餐怎么选？流量、倍率与设备限制的对照清单","position":6,"url":"https://www.woaifanqiang.blog/posts/airport-plan-checklist/"},{"@type":"ListItem","name":"机场是什么？节点、订阅链接和客户端一次讲清","position":7,"url":"https://www.woaifanqiang.blog/posts/airport-basics/"}]},"name":"新手入门","url":"https://www.woaifanqiang.blog/tags/getting-started/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/tags/getting-started/","name":"新手入门","position":2}]}]}</script>
 
 <script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
 <link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
@@ -77,9 +77,26 @@
 
 <div class="theme-list-heading">
 <span class="theme-list-title">故事放映中</span>
-<span class="theme-list-count">本页 6 篇</span>
+<span class="theme-list-count">本页 7 篇</span>
 </div>
 <section class="article-list anime-entries" aria-label="文章列表"><article class="article-card anime-story">
+<div class="story-ribbon">
+<div class="entry-categories"><a class="card-category" href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+<span class="card-index" aria-hidden="true">
+</span>
+</div>
+<h2>
+<a href="https://www.woaifanqiang.blog/posts/daily-2026-10-03-udp-connectivity-troubleshooting/">机场节点支持 UDP 吗？网页正常但语音、游戏连不上的排查方法</a></h2>
+<p class="card-summary">网页能打开、节点显示在线，不代表实时应用的 UDP 连接正常。以 Mihomo 为例，检查应用接管、策略组和节点设置，再用四步对照区分节点、网络与应用问题。</p>
+<div class="story-bottom">
+<div class="card-meta">
+<span>小六</span>
+<time datetime="2026-10-03T09:07:55&#43;08:00">2026-10-03</time>
+</div>
+<a class="read-more" href="https://www.woaifanqiang.blog/posts/daily-2026-10-03-udp-connectivity-troubleshooting/" aria-label="阅读机场节点支持 UDP 吗？网页正常但语音、游戏连不上的排查方法">翻开手账 <span aria-hidden="true">↗</span>
+</a>
+</div>
+</article><article class="article-card anime-story">
 <div class="story-ribbon">
 <div class="entry-categories"><a class="card-category" href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
 <span class="card-index" aria-hidden="true">
@@ -190,7 +207,7 @@
 </div></div>
 
 <footer class="site-footer">
-<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a></nav>
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a></nav>
 <span>© 小六有点六 2026</span>
 </footer>
 
