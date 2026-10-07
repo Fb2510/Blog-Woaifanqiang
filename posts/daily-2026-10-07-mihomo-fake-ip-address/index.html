@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>开机场客户端后域名解析成 198.18？Mihomo Fake-IP 排查指南 · 小六有点六</title>
+<meta name="description" content="开启机场客户端后 DNS 返回 198.18 地址怎么办？解释 Mihomo Fake-IP 映射，检查解析与连接接管，区分 fake-ip-filter 模式和实际出口规则。">
+<meta name="keywords" content="Mihomo Fake-IP,198.18解析地址,fake-ip-filter,DNS映射排查">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-10-07-mihomo-fake-ip-address/">
+<meta property="og:title" content="开机场客户端后域名解析成 198.18？Mihomo Fake-IP 排查指南">
+<meta property="og:description" content="开启机场客户端后 DNS 返回 198.18 地址怎么办？解释 Mihomo Fake-IP 映射，检查解析与连接接管，区分 fake-ip-filter 模式和实际出口规则。">
+<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-10-07-mihomo-fake-ip-address/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="开机场客户端后域名解析成 198.18？Mihomo Fake-IP 排查指南">
+<meta name="twitter:description" content="开启机场客户端后 DNS 返回 198.18 地址怎么办？解释 Mihomo Fake-IP 映射，检查解析与连接接管，区分 fake-ip-filter 模式和实际出口规则。">
+<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-10-07T09:12:15&#43;08:00"><meta property="article:modified_time" content="2026-10-08T00:09:40&#43;08:00"><meta property="article:tag" content="新手入门"><meta property="article:tag" content="使用排障">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-07-mihomo-fake-ip-address/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-10-08T00:09:40+08:00","datePublished":"2026-10-07T09:12:15+08:00","description":"开启机场客户端后 DNS 返回 198.18 地址怎么办？解释 Mihomo Fake-IP 映射，检查解析与连接接管，区分 fake-ip-filter 模式和实际出口规则。","headline":"开机场客户端后域名解析成 198.18？Mihomo Fake-IP 排查指南","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-07-mihomo-fake-ip-address/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-07-mihomo-fake-ip-address/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-10-07-mihomo-fake-ip-address/","name":"开机场客户端后域名解析成 198.18？Mihomo Fake-IP 排查指南","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+<meta name="msvalidate.01" content="3D562902FFD6655EA5B649095B7D8365" />
+
+</head>
+
+<body class="reader-page theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">开机场客户端后域名解析成 198.18？Mihomo Fake-IP 排查指南</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">开机场客户端后域名解析成 198.18？Mihomo Fake-IP 排查指南</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-10-07T09:12:15&#43;08:00">2026-10-07</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>开启使用 Mihomo 的机场客户端后，查询网站域名得到 <code>198.18</code> 开头的地址，可能只是正常的 Fake-IP 映射。它既不代表网站搬到了这个地址，也不是你的节点出口 IP。先确认当前 DNS 模式和请求接管方式，再判断是否出现解析故障。</p>
+<p>作者：小六｜资料核对日期：2026年10月7日</p>
+<h2 id="fake-ip-">Fake-IP 可以怎样理解？</h2>
+<p>可以把它理解成客户端在本地发出的“域名号码牌”：应用拿到一个映射地址，连接进入同一个内核后，内核根据映射找到对应域名，继续按配置处理请求。</p>
+<p>这段解释是对实现过程的通俗概括。Mihomo 的<a href="https://github.com/MetaCubeX/mihomo/blob/Meta/dns/enhancer.go">解析增强模块源码</a>中，<code>FindHostByIP</code> 会尝试从 Fake-IP 地址池反查域名，体现了地址与域名映射的关系。</p>
+<p>关键条件是：收到号码牌的应用，其连接也要进入能够识别这张号码牌的客户端。DNS 回答由一个工具产生，连接却绕开它，才是需要重点检查的情况之一。</p>
+<h2 id="-19818-">为什么常见的是 198.18 开头？</h2>
+<p>Mihomo 官方 DNS 示例使用 <code>fake-ip-range: 198.18.0.1/16</code>，实际网段可以由配置指定，不能认定所有客户端都使用同一个范围。见 <a href="https://wiki.metacubex.one/config/dns/">Mihomo DNS 配置</a>。</p>
+<p>IANA 将更大的 <code>198.18.0.0/15</code> 范围登记为 Benchmarking，并标记为不具有全球可达性。它不是普通网站的公网地址段，也不是常说的 <code>192.168</code> 私有地址段。见 <a href="https://www.iana.org/assignments/iana-ipv4-special-registry">IANA IPv4 特殊用途地址表</a>。</p>
+<p>所以，在本机 DNS 查询结果中看到这个范围，不应马上拿它到公网 IP 地区网站查询，再据此评价机场节点。DNS 返回的是目标映射，网站看到的出口是另一件事。</p>
+<h2 id="heading">三种地址，分别说明什么？</h2>
+<table>
+<thead>
+<tr>
+<th>地址</th>
+<th>常见查看位置</th>
+<th>主要意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fake-IP</td>
+<td>客户端负责的域名查询结果</td>
+<td>本地映射，用于关联域名</td>
+</tr>
+<tr>
+<td>网站真实地址</td>
+<td>相应上游解析结果</td>
+<td>连接目标网站时可能使用的地址</td>
+</tr>
+<tr>
+<td>出口 IP</td>
+<td>网站返回的来源地址</td>
+<td>这一次网站请求从哪里到达</td>
+</tr>
+</tbody>
+</table>
+<p>网页能打开，但映射地址的 Ping 没有响应，不能据此直接认定节点坏了。应用请求、映射处理与 ICMP 测试不是同一套验证过程，排查应回到实际出错的业务请求。</p>
+<h2 id="heading-1">只有某个应用失败，怎样定位？</h2>
+<h3 id="heading-2">先确认是谁回答了查询</h3>
+<p>查看当前生效配置，确认是否开启客户端 DNS、是否使用 <code>fake-ip</code> 模式，以及应用实际采用哪一处解析设置。若应用自己使用其他 DNS，就不能把它的行为归到客户端这份配置。</p>
+<p>系统、浏览器和客户端的 DNS 分工，可先看本站的<a href="https://woaifanqiang.blog/posts/daily-2026-10-02-proxy-dns-settings/">三处 DNS 设置说明</a>。本文关注的是映射地址，不要求你同时改动这三处设置。</p>
+<h3 id="heading-3">再确认连接是否进入相同内核</h3>
+<p>保持目标域名不变，重新启动出错应用，查看客户端的新连接记录。如果它拿到了映射地址，却没有被当前连接方式接管，应先检查系统代理支持或 TUN 范围。</p>
+<p>这一步是按机制推导的排查方向，并不意味着所有异常都由接管缺失造成。若请求已经进入内核，继续观察域名是否识别、规则是否符合预期，以及后续错误类型。</p>
+<h3 id="heading-4">最后才考虑为特定域名调整行为</h3>
+<p>确有兼容问题时，可以研究 <code>fake-ip-filter</code>，但须同时核对 <code>fake-ip-filter-mode</code>。官方文档区分 <code>blacklist</code>、<code>whitelist</code> 和 <code>rule</code>：默认黑名单方式下，匹配的域名不下发 Fake-IP；白名单方式含义不同；规则方式采用另一套写法。</p>
+<p>不要把一段黑名单示例直接加到白名单或规则模式里。先备份当前配置，仅调整确认相关的域名，重新加载后复测。<code>fake-ip-filter</code> 改的是解析映射行为，不是“这个网站一定直连”的路由指令；出口仍需核对实际规则。</p>
+<h2 id="heading-5">缓存和模式切换，要注意什么？</h2>
+<p>应用可能继续使用先前保存的解析结果。因此，切换模式后，应先重新启动相关应用，再按客户端文档处理必要的缓存。不要把映射地址写入 hosts 或长期保存为网站固定地址，它不是稳定的公网目标。</p>
+<p>也不要仅因出现映射地址，就删除整份配置、重置系统网络或关闭全部 DNS 功能。先区分“结果看起来陌生”和“实际访问失败”，正常映射无需为了让查询结果更像公网地址而改动。</p>
+<h2 id="heading-6">怎样记录一次有用的对照？</h2>
+<p>把一次测试分成三行记录：查询拿到什么地址、客户端是否收到对应连接、目标网页最终返回什么。保持节点和网络不变，只调整一个相关设置。恢复后能够访问，说明这项设置值得继续调查，并不能证明某种 DNS 模式对所有应用都更好。</p>
+<p>映射结果也不是速度成绩。要评价节点性能，应另做相同目标和相同时间条件下的连接测试，不能只按解析结果出现得快慢下结论。</p>
+<p>如果需要交流，请提供客户端名称、内核版本、DNS 模式、接管方式和脱敏后的异常域名，不需要完整订阅。我可以和你一起判断映射、连接与出口是不是被混在了一起：<a href="https://t.me/oldsix985">Telegram 联系我</a></p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/getting-started/"># 新手入门</a><a href="https://www.woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-07-process-routing-rules/">← 上一篇</a><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-07-node-ip-geolocation/">下一篇 →</a></nav>
+
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#fake-ip-">Fake-IP 可以怎样理解？</a><a class="level-2" href="#-19818-">为什么常见的是 198.18 开头？</a><a class="level-2" href="#heading">三种地址，分别说明什么？</a><a class="level-2" href="#heading-1">只有某个应用失败，怎样定位？</a><a class="level-3" href="#heading-2">先确认是谁回答了查询</a><a class="level-3" href="#heading-3">再确认连接是否进入相同内核</a><a class="level-3" href="#heading-4">最后才考虑为特定域名调整行为</a><a class="level-2" href="#heading-5">缓存和模式切换，要注意什么？</a><a class="level-2" href="#heading-6">怎样记录一次有用的对照？</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/@oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
+<span>© 小六有点六 2026</span>
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":false,"likes":true,"locale":"zh-CN","pageKey":"/p/005afe8d-c204-4768-b934-b636fa6c48de/","pageTitle":"开机场客户端后域名解析成 198.18？Mihomo Fake-IP 排查指南","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>

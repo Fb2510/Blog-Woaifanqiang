@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mihomo 配置能直接导入 sing-box 吗？机场订阅格式兼容指南 · 小六有点六</title>
+<meta name="description" content="Mihomo 配置能直接导入 sing-box 吗？说明 YAML、JSON、Base64 和配置字段的区别，按输入、协议、内核版本及实际运行行为检查订阅兼容性。">
+<meta name="keywords" content="Mihomo转sing-box,机场订阅格式,客户端配置兼容,YAML JSON">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-10-06-subscription-format-compatibility/">
+<meta property="og:title" content="Mihomo 配置能直接导入 sing-box 吗？机场订阅格式兼容指南">
+<meta property="og:description" content="Mihomo 配置能直接导入 sing-box 吗？说明 YAML、JSON、Base64 和配置字段的区别，按输入、协议、内核版本及实际运行行为检查订阅兼容性。">
+<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-10-06-subscription-format-compatibility/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mihomo 配置能直接导入 sing-box 吗？机场订阅格式兼容指南">
+<meta name="twitter:description" content="Mihomo 配置能直接导入 sing-box 吗？说明 YAML、JSON、Base64 和配置字段的区别，按输入、协议、内核版本及实际运行行为检查订阅兼容性。">
+<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-10-06T09:20:24&#43;08:00"><meta property="article:modified_time" content="2026-10-08T00:12:56&#43;08:00"><meta property="article:tag" content="新手入门"><meta property="article:tag" content="订阅管理">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-06-subscription-format-compatibility/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-10-08T00:12:56+08:00","datePublished":"2026-10-06T09:20:24+08:00","description":"Mihomo 配置能直接导入 sing-box 吗？说明 YAML、JSON、Base64 和配置字段的区别，按输入、协议、内核版本及实际运行行为检查订阅兼容性。","headline":"Mihomo 配置能直接导入 sing-box 吗？机场订阅格式兼容指南","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-06-subscription-format-compatibility/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-06-subscription-format-compatibility/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-10-06-subscription-format-compatibility/","name":"Mihomo 配置能直接导入 sing-box 吗？机场订阅格式兼容指南","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+<meta name="msvalidate.01" content="3D562902FFD6655EA5B649095B7D8365" />
+
+</head>
+
+<body class="reader-page theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">Mihomo 配置能直接导入 sing-box 吗？机场订阅格式兼容指南</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">Mihomo 配置能直接导入 sing-box 吗？机场订阅格式兼容指南</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-10-06T09:20:24&#43;08:00">2026-10-06</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>Mihomo 的机场配置不能只改扩展名，就当成 sing-box 配置导入。能否跨客户端使用，要分别检查订阅返回内容、节点协议、配置结构和实际运行版本。节点信息相同，也不代表 DNS、规则和本地入口会自动等价迁移。</p>
+<p>本文适合换客户端后出现解析错误，或导入成功但连接行为与原软件不同的情况。下面说明判断方法，不推荐陌生在线转换服务，也不提供包含真实账号的配置示例。</p>
+<p>作者：小六｜资料核对日期：2026年10月6日</p>
+<h2 id="heading">先分清订阅地址、节点信息与完整配置</h2>
+<p>订阅地址是获取内容的入口，本身不能说明内容适用于哪个客户端。服务方可能提供多个适配入口，应从其账户页面和说明中确认，而不是根据网址末尾猜格式。</p>
+<p>节点信息主要描述如何连接服务器；完整配置还可能包含本地入口、DNS、策略组与路由规则。只导入节点列表，不能假定原来的完整分流也一起存在。</p>
+<p>客户端界面上的“导入订阅”，也可能包含它自己的解析或转换逻辑。因此，需要查看具体软件支持的输入，不能只根据它使用了哪一种内核做判断。</p>
+<h2 id="yaml--json-">YAML 和 JSON 的差别，还不止外观</h2>
+<p>Mihomo 文档说明其配置使用 YAML，并介绍大小写、缩进和对象结构；sing-box 文档则说明其配置使用 JSON，包含 <code>inbounds</code>、<code>outbounds</code>、<code>route</code> 等部分。见 <a href="https://wiki.metacubex.one/handbook/syntax/">Mihomo 语法说明</a>与 <a href="https://sing-box.sagernet.org/configuration/">sing-box 配置说明</a>。</p>
+<p>两者的差异不仅是冒号、括号或文件扩展名，字段结构与含义也需要对应。YAML 本身能够容纳 JSON 写法，因此“换成 JSON 外观”也不是跨内核兼容的证明。</p>
+<table>
+<thead>
+<tr>
+<th>检查层次</th>
+<th>需要回答的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>返回内容</td>
+<td>是节点信息、完整配置，还是提示网页？</td>
+</tr>
+<tr>
+<td>输入支持</td>
+<td>客户端接受哪种导入方式？</td>
+</tr>
+<tr>
+<td>节点协议</td>
+<td>实际内核是否支持对应协议与所需功能？</td>
+</tr>
+<tr>
+<td>配置结构</td>
+<td>字段、引用和规则是否属于目标内核？</td>
+</tr>
+<tr>
+<td>运行行为</td>
+<td>DNS、入口与分流是否符合预期？</td>
+</tr>
+</tbody>
+</table>
+<p>如果只改文件后缀后错误变了，不代表转换已经完成，仍要逐层核对。</p>
+<h2 id="heading-1">一个混合入口，就能看出字段结构不同</h2>
+<p>Mihomo 可以用顶层 <code>mixed-port</code> 设置混合代理端口；sing-box 的混合入口则作为一项 <code>type</code> 为 <code>mixed</code> 的入站，并使用相应监听字段。见 <a href="https://wiki.metacubex.one/config/inbound/port/">Mihomo 端口文档</a>与 <a href="https://sing-box.sagernet.org/configuration/inbound/mixed/">sing-box Mixed 文档</a>。</p>
+<p>这里是在比较结构，不是给出可直接运行的配置。端口以外还需要核对其他必需设置，不能复制几个字段就认为整个客户端已经可用。</p>
+<p>同样，某个节点能够连接，不代表规则组名称、DNS 路由或平台权限也已经迁移。更换客户端后，应把这些行为分别验证。</p>
+<h2 id="base64-">Base64 解码，为什么不等于转换配置？</h2>
+<p>Base64 是一种数据编码方式，定义见 IETF 的 <a href="https://datatracker.ietf.org/doc/html/rfc4648#section-4">RFC 4648</a>。它处理的是数据如何表示，不能替代目标客户端的配置结构。</p>
+<p>据此可以判断：如果内容原本只包含节点信息，解码后仍要看它是什么信息，不会因此自动生成完整 DNS 与路由规则。不要把“能读到内容”和“已转换成目标配置”当成同一个阶段。</p>
+<p>编码内容也可能包含认证信息。需要确认内容时，只在自己控制的环境中查看，分享错误时不必附上完整原文。</p>
+<h2 id="heading-2">按这个顺序迁移，比较容易发现问题</h2>
+<p>先保留原客户端的可用配置和个人规则，记下客户端、内核及当前版本。接着确认服务方是否有对应目标客户端的入口；有明确适配方式时，优先按其说明导入。</p>
+<p>如果需要转换，应了解它转换哪些部分，以及哪些功能需要另外处理。一次只验证一个可用节点，再检查本地入口、DNS 与分流，不要一边迁移一边大幅改原来的行为。</p>
+<p>适配说明没有涵盖的字段，不应为了消除错误就直接删除。尤其是认证、TLS 和传输设置，要对照目标内核与服务方要求核对，不用猜测值填空。</p>
+<h2 id="heading-3">配置检查通过，是否说明一切正常？</h2>
+<p>不能。sing-box 官方提供 <code>sing-box check</code> 配置检查方式；检查通过可以作为配置层面的线索，但不能替代远端连接、目标访问和规则命中的验证。</p>
+<p>还要让文档与实际安装版本对应。官方 <a href="https://sing-box.sagernet.org/configuration/schema/">JSON Schema 说明</a>提供了按已安装构建生成匹配结构的方式；相关命令是否可用，需要看自己的版本，而不是照搬最新页面全部字段。</p>
+<p>迁移后用少量固定目标检查预期出口和 DNS 行为，再逐步恢复日常使用。个人规则的保留可参考本站的<a href="https://woaifanqiang.blog/posts/daily-2026-10-05-subscription-custom-rules/">订阅更新与自定义规则说明</a>，具体入口仍需按目标客户端确认。</p>
+<p>如果失败发生在下载阶段，应另看<a href="https://woaifanqiang.blog/posts/daily-2026-10-04-subscription-update-errors/">订阅更新错误排查</a>。想交流兼容性判断，可以提供客户端与内核版本、输入类型和脱敏后的错误字段：<a href="https://t.me/oldsix985">Telegram 联系我</a></p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/getting-started/"># 新手入门</a><a href="https://www.woaifanqiang.blog/tags/subscription-management/"># 订阅管理</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-06-rule-provider-update-failure/">← 上一篇</a><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-06-proxy-port-conflict/">下一篇 →</a></nav>
+
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#heading">先分清订阅地址、节点信息与完整配置</a><a class="level-2" href="#yaml--json-">YAML 和 JSON 的差别，还不止外观</a><a class="level-2" href="#heading-1">一个混合入口，就能看出字段结构不同</a><a class="level-2" href="#base64-">Base64 解码，为什么不等于转换配置？</a><a class="level-2" href="#heading-2">按这个顺序迁移，比较容易发现问题</a><a class="level-2" href="#heading-3">配置检查通过，是否说明一切正常？</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/@oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
+<span>© 小六有点六 2026</span>
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":false,"likes":true,"locale":"zh-CN","pageKey":"/p/ff7ad6ad-dc38-4a60-ae3d-1366d3a53e4b/","pageTitle":"Mihomo 配置能直接导入 sing-box 吗？机场订阅格式兼容指南","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>

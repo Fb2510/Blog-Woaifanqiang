@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>切换机场节点后旧连接还在？长连接与新出口验证方法 · 小六有点六</title>
+<meta name="description" content="切换机场节点后旧连接仍走原出口，怎样确认新连接是否生效？检查建立时间、命中规则和链路，了解持久连接及 sing-box 切换中断选项。">
+<meta name="keywords" content="切换节点旧连接,机场节点切换不生效,长连接,出口验证">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-10-06-node-switch-existing-connections/">
+<meta property="og:title" content="切换机场节点后旧连接还在？长连接与新出口验证方法">
+<meta property="og:description" content="切换机场节点后旧连接仍走原出口，怎样确认新连接是否生效？检查建立时间、命中规则和链路，了解持久连接及 sing-box 切换中断选项。">
+<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-10-06-node-switch-existing-connections/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="切换机场节点后旧连接还在？长连接与新出口验证方法">
+<meta name="twitter:description" content="切换机场节点后旧连接仍走原出口，怎样确认新连接是否生效？检查建立时间、命中规则和链路，了解持久连接及 sing-box 切换中断选项。">
+<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-10-06T09:20:05&#43;08:00"><meta property="article:modified_time" content="2026-10-08T00:13:03&#43;08:00"><meta property="article:tag" content="新手入门"><meta property="article:tag" content="使用排障">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-06-node-switch-existing-connections/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-10-08T00:13:03+08:00","datePublished":"2026-10-06T09:20:05+08:00","description":"切换机场节点后旧连接仍走原出口，怎样确认新连接是否生效？检查建立时间、命中规则和链路，了解持久连接及 sing-box 切换中断选项。","headline":"切换机场节点后旧连接还在？长连接与新出口验证方法","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-06-node-switch-existing-connections/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-06-node-switch-existing-connections/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-10-06-node-switch-existing-connections/","name":"切换机场节点后旧连接还在？长连接与新出口验证方法","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+<meta name="msvalidate.01" content="3D562902FFD6655EA5B649095B7D8365" />
+
+</head>
+
+<body class="reader-page theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">切换机场节点后旧连接还在？长连接与新出口验证方法</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">切换机场节点后旧连接还在？长连接与新出口验证方法</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-10-06T09:20:05&#43;08:00">2026-10-06</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>切换机场节点后，旧下载仍显示走原节点，不一定是切换失败。已经建立的连接是否被中断，与后续连接选择哪个出口，是两件需要分别检查的事。先看连接建立时间和实际链路，再决定是否让应用重新连接。</p>
+<p>本文适合“界面已选节点 B，连接记录里仍有节点 A”的情况。下面用 Mihomo 的连接信息和 sing-box 的相关选项说明原理，不能把某个内核的字段直接套到其他客户端。</p>
+<p>作者：小六｜资料核对日期：2026年10月6日</p>
+<h2 id="heading">切换了选择，为什么还看得到旧连接？</h2>
+<p>节点选择决定连接使用的出口，而正在传输的会话已经建立了自己的连接状态。若客户端没有关闭它，不能期待已有连接把远端端点直接替换成另一台节点。</p>
+<p>网页请求也不总是每次创建全新连接。MDN 说明，HTTP/1.1 的持久连接可以供多个请求复用，HTTP/2 则有其他连接管理方式。见 <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Connection_management_in_HTTP_1.x">HTTP 连接管理说明</a>。</p>
+<p>因此，点击刷新、打开新标签页，都不能单独保证已经建立了新的底层连接。继续看到旧出口，先判断它是不是切换前已经存在的记录。</p>
+<h2 id="heading-1">第一步：记录切换时间和对应策略组</h2>
+<p>切换前记下当前组、选中成员与需要观察的应用。切换后再看该组的选择是否改变，而不是只看首页上某个节点名称。</p>
+<p>如果上层选择的是另一个自动组，还需要查看实际出口。目标连接也可能命中了其他规则、另一个组或直连策略，这时修改当前组不会必然影响它。</p>
+<p>策略组基本关系可以结合本站的<a href="https://woaifanqiang.blog/posts/daily-2026-09-30-proxy-group-selection/">自动选择、故障转移与负载均衡说明</a>理解。本篇重点是切换前后的连接状态，不重新比较各种策略类型。</p>
+<h2 id="heading-2">第二步：对照建立时间、命中规则和链路</h2>
+<p>Mihomo 的连接接口提供 <code>start</code>、<code>chains</code>、目标元数据和命中规则等信息，用于判断连接何时建立、采用哪条链路。见<a href="https://wiki.metacubex.one/api/">官方连接 API 说明</a>。图形面板是否展示这些字段，应以实际界面为准。</p>
+<table>
+<thead>
+<tr>
+<th>观察结果</th>
+<th>需要确认的事</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>切换前建立的连接仍显示 A</td>
+<td>客户端是否保留旧会话</td>
+</tr>
+<tr>
+<td>切换后建立的目标连接显示 B</td>
+<td>新连接是否按预期进入所选组</td>
+</tr>
+<tr>
+<td>切换后目标连接仍显示 A</td>
+<td>实际规则、嵌套组与客户端选择是否一致</td>
+</tr>
+<tr>
+<td>目标没有进入连接记录</td>
+<td>应用是否经过该客户端，以及是否真的发起请求</td>
+</tr>
+</tbody>
+</table>
+<p>不要只按节点名称筛选后截图。先锁定目标应用和连接时间，避免把其他后台任务的旧会话认成这次测试的连接。</p>
+<h2 id="heading-3">第三步：需要验证新出口时，让目标重新连接</h2>
+<p>确认没有重要传输后，可以暂停目标应用的任务，再使用它支持的重新连接功能，观察新出现的记录。有些应用需要完全退出后重新启动，具体应按应用自己的行为判断。</p>
+<p>若面板支持关闭指定连接，可以先只处理已经确认的那一条，再让应用重连。Mihomo 文档区分关闭单个连接与关闭全部连接，两者影响范围不同。</p>
+<p>“关闭全部连接”可能同时打断下载、通话与其他任务。没有必要时，不应为了测试一个网页而全部清空；如果确实需要整体重连，先保存工作并处理进行中的任务。</p>
+<p>新记录出现后，再核对建立时间、目标和实际出口。只有界面数字变化，没有对应的新连接证据，仍不足以说明目标已经切换。</p>
+<h2 id="heading-4">自动断开旧连接的选项，都一样吗？</h2>
+<p>不一样。以 sing-box 的 Selector 为例，<code>interrupt_exist_connections</code> 用于在选中的出站发生变化时中断已有连接；官方还区分受此设置影响的入站连接与始终中断的内部连接。见 <a href="https://sing-box.sagernet.org/configuration/outbound/selector/">Selector 官方文档</a>。</p>
+<p>这说明是否主动断开，需要看内核和对应设置。该字段属于 sing-box，不能因为客户端界面类似，就原样写入 Mihomo 配置。</p>
+<p>图形客户端可能另外提供切换后关闭连接的功能。先查安装版本的说明与实际设置，再用不重要的任务做对照，不把“打开后切换更彻底”理解成正在进行的传输不会受影响。</p>
+<h2 id="-ip-">出口 IP 页面没变化，就能证明切换失败吗？</h2>
+<p>不能单独证明。页面请求可能复用原连接，也可能没有命中正在调整的策略。先把查询页面的实际连接与切换时刻对应起来，再分析结果。</p>
+<p>一个应用还可能使用多个目标和多条连接。某条连接显示新出口，不能推出整个应用的所有会话已经一起迁移；需要观察的范围应与自己的用途一致。</p>
+<p>如果新连接也持续不符合预期，再按本站的<a href="https://woaifanqiang.blog/posts/rule-global-tun-guide/">规则模式与 TUN 指南</a>检查接管和分流，避免反复刷新订阅却没有查看实际路径。</p>
+<h2 id="heading-5">留下怎样的记录更容易交流？</h2>
+<p>记录客户端与内核版本、策略组类型、切换时间、目标应用，以及切换前后连接的建立时间和链路。再注明是否启用了关闭旧连接的功能、是否让应用重连。</p>
+<p>想交流切换节点后旧连接保留或新出口不生效的问题，可以提供这些脱敏信息，不需要发送完整订阅：<a href="https://t.me/oldsix985">Telegram 联系我</a></p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/getting-started/"># 新手入门</a><a href="https://www.woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-06-proxy-port-conflict/">← 上一篇</a><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-06-upload-loaded-latency/">下一篇 →</a></nav>
+
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#heading">切换了选择，为什么还看得到旧连接？</a><a class="level-2" href="#heading-1">第一步：记录切换时间和对应策略组</a><a class="level-2" href="#heading-2">第二步：对照建立时间、命中规则和链路</a><a class="level-2" href="#heading-3">第三步：需要验证新出口时，让目标重新连接</a><a class="level-2" href="#heading-4">自动断开旧连接的选项，都一样吗？</a><a class="level-2" href="#-ip-">出口 IP 页面没变化，就能证明切换失败吗？</a><a class="level-2" href="#heading-5">留下怎样的记录更容易交流？</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/@oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
+<span>© 小六有点六 2026</span>
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":false,"likes":true,"locale":"zh-CN","pageKey":"/p/48cc2231-df32-44d0-b422-9a072fcb47fc/","pageTitle":"切换机场节点后旧连接还在？长连接与新出口验证方法","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>

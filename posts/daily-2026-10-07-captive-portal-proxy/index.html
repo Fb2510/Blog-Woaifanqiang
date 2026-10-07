@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>酒店 Wi-Fi 认证页打不开？机场客户端与网络登录排查 · 小六有点六</title>
+<meta name="description" content="酒店 Wi-Fi 登录认证页打不开、机场节点全部超时怎么办？区分无线接入与互联网认证，检查 Windows NCSI、代理残留，并在登录后恢复节点连接。">
+<meta name="keywords" content="Wi-Fi认证页打不开,酒店网络代理,机场节点超时,Windows NCSI">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-10-07-captive-portal-proxy/">
+<meta property="og:title" content="酒店 Wi-Fi 认证页打不开？机场客户端与网络登录排查">
+<meta property="og:description" content="酒店 Wi-Fi 登录认证页打不开、机场节点全部超时怎么办？区分无线接入与互联网认证，检查 Windows NCSI、代理残留，并在登录后恢复节点连接。">
+<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-10-07-captive-portal-proxy/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="酒店 Wi-Fi 认证页打不开？机场客户端与网络登录排查">
+<meta name="twitter:description" content="酒店 Wi-Fi 登录认证页打不开、机场节点全部超时怎么办？区分无线接入与互联网认证，检查 Windows NCSI、代理残留，并在登录后恢复节点连接。">
+<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-10-07T09:12:23&#43;08:00"><meta property="article:modified_time" content="2026-10-08T00:09:49&#43;08:00"><meta property="article:tag" content="新手入门"><meta property="article:tag" content="使用排障">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-07-captive-portal-proxy/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-10-08T00:09:49+08:00","datePublished":"2026-10-07T09:12:23+08:00","description":"酒店 Wi-Fi 登录认证页打不开、机场节点全部超时怎么办？区分无线接入与互联网认证，检查 Windows NCSI、代理残留，并在登录后恢复节点连接。","headline":"酒店 Wi-Fi 认证页打不开？机场客户端与网络登录排查","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-07-captive-portal-proxy/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-07-captive-portal-proxy/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-10-07-captive-portal-proxy/","name":"酒店 Wi-Fi 认证页打不开？机场客户端与网络登录排查","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+<meta name="msvalidate.01" content="3D562902FFD6655EA5B649095B7D8365" />
+
+</head>
+
+<body class="reader-page theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">酒店 Wi-Fi 认证页打不开？机场客户端与网络登录排查</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">酒店 Wi-Fi 认证页打不开？机场客户端与网络登录排查</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-10-07T09:12:23&#43;08:00">2026-10-07</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>酒店或咖啡店的 Wi-Fi 已连上，机场客户端却全部超时，先检查这张网络是否需要网页登录认证。无线连接成功，只说明设备接入了网络，不等于已经获准访问互联网。通常应先完成可信的本地网络认证，再恢复代理连接并复测。</p>
+<p>作者：小六｜资料核对日期：2026年10月7日</p>
+<h2 id="-wi-fi-">为什么会出现“连上 Wi-Fi 但不能上网”？</h2>
+<p>一些公共网络采用认证门户，也就是先把你引导到登录或使用条款页面，完成后才放行相应连接。未认证时，普通网页、节点连接和系统连通性探测可能得到不同的响应。</p>
+<p>微软的 <a href="https://learn.microsoft.com/en-us/windows-server/networking/ncsi/ncsi-overview">NCSI 说明</a>解释了 Windows 如何通过网络探测判断连通性，也介绍了认证门户可能返回重定向或其他内容。因此，“节点都超时”首先可能是接入网络没有放行，而非订阅同时出现故障。</p>
+<p>本文适用于你正常使用、且明确需要认证的 Wi-Fi。公司管理网络则应按管理员给出的连接流程操作，不要随意改动组织配置。</p>
+<h2 id="heading">认证页和远端节点，是两条不同的检查线</h2>
+<p>认证页通常需要通过当前接入网络完成。如果还没获准访问互联网，先尝试连接远端节点，未必能让认证过程顺利发生。反过来，即使认证页能打开，也还不能证明互联网已经完全可用。</p>
+<p>可以先区分下面三种现象：</p>
+<table>
+<thead>
+<tr>
+<th>现象</th>
+<th>优先核对</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>有“登录网络”提示，节点全部超时</td>
+<td>是否完成了这张 Wi-Fi 的认证</td>
+</tr>
+<tr>
+<td>认证成功，普通直连网页也失败</td>
+<td>网络是否确实放行、地址是否正常</td>
+</tr>
+<tr>
+<td>普通网页正常，只有节点连接失败</td>
+<td>当前网络对连接的限制、节点状态</td>
+</tr>
+</tbody>
+</table>
+<p>这个顺序能减少无效操作。还没认证时，连续更新订阅、测速或换 DNS，并不能代替网络本身的登录流程。</p>
+<h2 id="windows-">Windows 下可以按五步检查</h2>
+<h3 id="1-">1. 确认网络与认证入口</h3>
+<p>先核对 Wi-Fi 名称是否正确，使用 Windows 提示的“登录网络”入口，或场所明确提供的认证网址。不要仅凭一个突然弹出的页面，就认定它属于这家场所。</p>
+<p>如果同一场所有多个热点，确认你实际连接的是哪一个。别人的手机正常，也不必然说明你的电脑已经通过认证，两台设备的接入状态应分别核对。</p>
+<h3 id="2-">2. 临时恢复普通连接路径</h3>
+<p>先记下客户端当前模式、系统代理和 TUN 状态，暂停需要远端节点的连接方式，再尝试认证入口。应通过客户端正常关闭相关接管开关，随后确认系统没有留下指向已退出客户端的代理设置。</p>
+<p>这里是为认证做一次范围明确的对照，并不要求删除订阅。若退出后所有网页仍打不开，可先参考本站的<a href="https://woaifanqiang.blog/posts/daily-2026-10-04-windows-proxy-after-exit/">Windows 代理残留排查</a>。</p>
+<h3 id="3-">3. 没有弹窗时，检查网络探测</h3>
+<p>微软文档说明，Windows 10 及后续版本的一种主动探测会访问 <code>http://www.msftconnecttest.com/connecttest.txt</code>，正常响应应是规定的测试文本。见<a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/internet-explorer-edge-open-connect-corporate-public-network">网络连接后浏览器打开的原因说明</a>。</p>
+<p>在个人电脑且使用普通连接路径时，可以用浏览器访问该测试地址，观察是否得到文本、被引导到认证页，或完全失败。这个结果只是辅助判断；它不一定触发所有场所的认证，也不应据此修改注册表或禁用系统探测。</p>
+<h3 id="4-">4. 完成认证，再验证普通网页</h3>
+<p>按场所的正规流程完成操作，然后打开一个平时正常使用的 HTTPS 页面。若仍然失败，先确认认证页是否明确成功、连接是否保持，以及是否需要重新接入。</p>
+<p>认证过程中若出现证书错误，不要为了进入页面就关闭证书验证。可向场所工作人员核对入口；页面要求安装不明证书或软件时，也应先核实是否属于这张网络的正式要求。</p>
+<h3 id="5-">5. 恢复代理，并检查新连接</h3>
+<p>普通连接已经可用后，恢复之前记录的客户端设置，固定一个节点复测。查看新连接是否进入客户端、出现什么错误，再决定是否需要进一步查节点与分流。</p>
+<p>若换到自己已正常联网的移动热点后相同配置可用，可以把问题范围缩小到当前 Wi-Fi 环境，但仍不能仅凭一次对照断言场所采用了哪种限制。</p>
+<h2 id="heading-1">认证后又失效，是否需要重新登录？</h2>
+<p>网络可能有会话期限，也可能在断开、重新接入或设备身份发生变化后要求再次认证，具体以场所规则为准。先检查有没有新的登录提示，不要一看到超时就重置客户端。</p>
+<p>Windows 的网络图标也只是诊断线索。微软提醒不要把禁用主动探测当作解决 NCSI 问题的方法；让提示消失，并不能代替实际恢复连接。处理时应保留能够说明问题的错误信息。</p>
+<p>如果认证完成后仍有节点异常，可以再按本站的<a href="https://woaifanqiang.blog/posts/airport-connection-troubleshooting/">机场连接排查顺序</a>继续。交流时说明认证前后、普通网页与代理请求分别有什么表现，比只发一句“Wi-Fi 不能用”更容易定位：<a href="https://t.me/oldsix985">Telegram 联系我</a></p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/getting-started/"># 新手入门</a><a href="https://www.woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/posts/%E6%9C%BA%E5%9C%BA%E8%AF%84%E6%B5%8B%E4%B8%8E%E6%8E%A8%E8%8D%90/">← 上一篇</a><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-07-process-routing-rules/">下一篇 →</a></nav>
+
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#-wi-fi-">为什么会出现“连上 Wi-Fi 但不能上网”？</a><a class="level-2" href="#heading">认证页和远端节点，是两条不同的检查线</a><a class="level-2" href="#windows-">Windows 下可以按五步检查</a><a class="level-3" href="#1-">1. 确认网络与认证入口</a><a class="level-3" href="#2-">2. 临时恢复普通连接路径</a><a class="level-3" href="#3-">3. 没有弹窗时，检查网络探测</a><a class="level-3" href="#4-">4. 完成认证，再验证普通网页</a><a class="level-3" href="#5-">5. 恢复代理，并检查新连接</a><a class="level-2" href="#heading-1">认证后又失效，是否需要重新登录？</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/@oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
+<span>© 小六有点六 2026</span>
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":false,"likes":true,"locale":"zh-CN","pageKey":"/p/a1565c6a-2be9-41ae-8689-7a6d3defa8a0/","pageTitle":"酒店 Wi-Fi 认证页打不开？机场客户端与网络登录排查","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>
