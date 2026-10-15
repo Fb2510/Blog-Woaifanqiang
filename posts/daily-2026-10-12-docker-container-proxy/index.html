@@ -7,36 +7,36 @@
 <title>Docker 容器连不上代理？宿主机地址、环境变量与镜像拉取排查 · 小六有点六</title>
 <meta name="description" content="Docker 容器连不上宿主机机场代理怎么办？检查 host.docker.internal、HTTP 入口、环境变量与 NO_PROXY，区分容器联网、构建依赖下载和镜像拉取的代理设置。">
 <meta name="keywords" content="Docker容器代理,host.docker.internal,容器代理环境变量,Docker镜像拉取代理,机场客户端排障">
-<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-10-12-docker-container-proxy/">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://woaifanqiang.blog/posts/daily-2026-10-12-docker-container-proxy/">
 <meta property="og:title" content="Docker 容器连不上代理？宿主机地址、环境变量与镜像拉取排查">
 <meta property="og:description" content="Docker 容器连不上宿主机机场代理怎么办？检查 host.docker.internal、HTTP 入口、环境变量与 NO_PROXY，区分容器联网、构建依赖下载和镜像拉取的代理设置。">
-<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-10-12-docker-container-proxy/">
+<meta property="og:url" content="https://woaifanqiang.blog/posts/daily-2026-10-12-docker-container-proxy/">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="小六有点六">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta property="og:image" content="https://woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Docker 容器连不上代理？宿主机地址、环境变量与镜像拉取排查">
 <meta name="twitter:description" content="Docker 容器连不上宿主机机场代理怎么办？检查 host.docker.internal、HTTP 入口、环境变量与 NO_PROXY，区分容器联网、构建依赖下载和镜像拉取的代理设置。">
-<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="twitter:image" content="https://woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
 <meta name="author" content="小六"><meta property="article:published_time" content="2026-10-12T09:10:06&#43;08:00"><meta property="article:modified_time" content="2026-10-12T21:02:46&#43;08:00"><meta property="article:tag" content="新手入门"><meta property="article:tag" content="使用排障">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-12-docker-container-proxy/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-10-12T21:02:46+08:00","datePublished":"2026-10-12T09:10:06+08:00","description":"Docker 容器连不上宿主机机场代理怎么办？检查 host.docker.internal、HTTP 入口、环境变量与 NO_PROXY，区分容器联网、构建依赖下载和镜像拉取的代理设置。","headline":"Docker 容器连不上代理？宿主机地址、环境变量与镜像拉取排查","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-12-docker-container-proxy/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-12-docker-container-proxy/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-10-12-docker-container-proxy/","name":"Docker 容器连不上代理？宿主机地址、环境变量与镜像拉取排查","position":2}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://woaifanqiang.blog/posts/daily-2026-10-12-docker-container-proxy/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-10-12T21:02:46+08:00","datePublished":"2026-10-12T09:10:06+08:00","description":"Docker 容器连不上宿主机机场代理怎么办？检查 host.docker.internal、HTTP 入口、环境变量与 NO_PROXY，区分容器联网、构建依赖下载和镜像拉取的代理设置。","headline":"Docker 容器连不上代理？宿主机地址、环境变量与镜像拉取排查","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://woaifanqiang.blog/posts/daily-2026-10-12-docker-container-proxy/","@type":"WebPage"},"url":"https://woaifanqiang.blog/posts/daily-2026-10-12-docker-container-proxy/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://woaifanqiang.blog/posts/daily-2026-10-12-docker-container-proxy/","name":"Docker 容器连不上代理？宿主机地址、环境变量与镜像拉取排查","position":2}]}]}</script>
 
 <script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
-<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
-<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
-<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
-<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
-<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
-<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
-<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
-<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/artalk.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/artalk.js"></script>
-<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
-<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
-<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
-<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/search.css"><script defer src="https://woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<link rel="stylesheet" href="https://woaifanqiang.blog/assets/theme/artalk.css"><script defer src="https://woaifanqiang.blog/assets/theme/artalk.js"></script>
+<script defer src="https://woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://woaifanqiang.blog/assets/theme/image-viewer.js"></script>
 
-<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+<script defer src="https://woaifanqiang.blog/assets/theme/interactions.js"></script>
 
 <meta name="msvalidate.01" content="3D562902FFD6655EA5B649095B7D8365" />
 <!-- Google tag (gtag.js) -->
@@ -49,16 +49,16 @@
   gtag('config', 'G-1Q9F5NES2X');
 </script>
 
-<script defer src="https://www.woaifanqiang.blog/assets/xblog/google-analytics.js" data-xblog-google-analytics="G-1Q9F5NES2X" data-site-hosts="www.woaifanqiang.blog"></script></head>
+<script defer src="https://woaifanqiang.blog/assets/xblog/google-analytics.js" data-xblog-google-analytics="G-1Q9F5NES2X" data-site-hosts="woaifanqiang.blog,www.woaifanqiang.blog"></script></head>
 
 <body class="reader-page theme-anime article-page">
 <a class="skip" href="#main">跳到正文</a>
 
 <header class="site-header">
 <div class="header-inner">
-<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
-<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
-<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<a class="brand" href="https://woaifanqiang.blog/"><img src="https://woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
 <button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
 <svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
 <svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
@@ -75,7 +75,7 @@
 <div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
 <main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
 
-<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">Docker 容器连不上代理？宿主机地址、环境变量与镜像拉取排查</span></li></ol></nav>
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">Docker 容器连不上代理？宿主机地址、环境变量与镜像拉取排查</span></li></ol></nav>
 
 
 <div class="anime-letter"><div class="letter-paper">
@@ -85,7 +85,7 @@
 手账正文</div>
 <h1 data-pagefind-meta="title">Docker 容器连不上代理？宿主机地址、环境变量与镜像拉取排查</h1>
 <div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-10-12T09:10:06&#43;08:00">2026-10-12</time><span><span id="page-views">—</span> 次阅读</span></div>
-<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+<div class="chips" data-pagefind-ignore><a href="https://woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
 </header>
 <div class="prose"><p>电脑上的机场客户端能用，Docker 容器里的应用却连不上，先区分三个问题：容器能否到达宿主机代理、应用是否读取代理设置，以及失败发生在运行容器还是拉取镜像。把代理变量写进容器，并不等于镜像下载也会采用同一配置。</p>
 <p>作者：小六｜资料核对日期：2026年10月12日。本文以 Windows 或 macOS 上 Docker Desktop 的普通 Linux 容器网络为例，讨论显式 HTTP 代理；原生 Linux Engine、远端守护进程和 host 网络模式应按对应环境核对。</p>
@@ -146,8 +146,8 @@
 <span id="page-like-label">点赞</span><span id="page-like-count">—</span>
 </button><p id="page-like-message" role="status"></p>
 </div>
-<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/getting-started/"># 新手入门</a><a href="https://www.woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a></div>
-<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-12-pac-proxy-troubleshooting/">← 上一篇</a><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-11-mihomo-dashboard-connection/">下一篇 →</a></nav>
+<div class="article-tags" data-pagefind-ignore><a href="https://woaifanqiang.blog/tags/getting-started/"># 新手入门</a><a href="https://woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://woaifanqiang.blog/posts/daily-2026-10-12-pac-proxy-troubleshooting/">← 上一篇</a><a href="https://woaifanqiang.blog/posts/daily-2026-10-11-mihomo-dashboard-connection/">下一篇 →</a></nav>
 <section class="comments-section" data-pagefind-ignore><h2>评论</h2><div id="comments"></div></section>
 </article>
 </div><div class="article-rail">
@@ -162,7 +162,7 @@
 </div>
 
 <footer class="site-footer">
-<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/@oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
 <span>© 2026 小六</span>
 </footer>
 
@@ -172,9 +172,9 @@
 <header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
 <div class="reader-dialog-body">
 
-<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+<div id="site-search-ui" data-module="https://woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
 
-<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-config bundle-path="https://woaifanqiang.blog/pagefind/" base-url="https://woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
 <pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
 <pagefind-summary></pagefind-summary>
 <pagefind-results></pagefind-results>
