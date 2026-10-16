@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>订阅刷新了，列表没变？先看 304 与配置生效 · 小六有点六</title>
+<meta name="description" content="机场订阅更新成功，节点列表为什么没变？区分 HTTP 304 缓存校验、200 响应、节点筛选与配置加载，提供本机核对步骤，帮助检查订阅副本和当前生效配置。">
+<meta name="keywords" content="订阅更新列表不变,304缓存,ETag,节点筛选,配置生效">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-10-16-subscription-304-active-config/">
+<meta property="og:title" content="订阅刷新了，列表没变？先看 304 与配置生效">
+<meta property="og:description" content="机场订阅更新成功，节点列表为什么没变？区分 HTTP 304 缓存校验、200 响应、节点筛选与配置加载，提供本机核对步骤，帮助检查订阅副本和当前生效配置。">
+<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-10-16-subscription-304-active-config/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="订阅刷新了，列表没变？先看 304 与配置生效">
+<meta name="twitter:description" content="机场订阅更新成功，节点列表为什么没变？区分 HTTP 304 缓存校验、200 响应、节点筛选与配置加载，提供本机核对步骤，帮助检查订阅副本和当前生效配置。">
+<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-10-16T09:12:05&#43;08:00"><meta property="article:modified_time" content="2026-10-16T22:06:46&#43;08:00"><meta property="article:tag" content="使用排障"><meta property="article:tag" content="订阅管理">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-16-subscription-304-active-config/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-10-16T22:06:46+08:00","datePublished":"2026-10-16T09:12:05+08:00","description":"机场订阅更新成功，节点列表为什么没变？区分 HTTP 304 缓存校验、200 响应、节点筛选与配置加载，提供本机核对步骤，帮助检查订阅副本和当前生效配置。","headline":"订阅刷新了，列表没变？先看 304 与配置生效","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-16-subscription-304-active-config/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-16-subscription-304-active-config/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-10-16-subscription-304-active-config/","name":"订阅刷新了，列表没变？先看 304 与配置生效","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/artalk.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/artalk.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+<meta name="msvalidate.01" content="3D562902FFD6655EA5B649095B7D8365" />
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1Q9F5NES2X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-1Q9F5NES2X');
+</script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/xblog/google-analytics.js" data-xblog-google-analytics="G-1Q9F5NES2X" data-site-hosts="www.woaifanqiang.blog"></script></head>
+
+<body class="reader-page theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">订阅刷新了，列表没变？先看 304 与配置生效</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">订阅刷新了，列表没变？先看 304 与配置生效</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-10-16T09:12:05&#43;08:00">2026-10-16</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>订阅提示更新成功，节点列表却没有变化，先核对更新的是哪份资源、是否下载了新内容，以及当前运行配置有没有采用它。节点名称不变，不能单独证明更新失败；日志里的 HTTP 304，也不等于下载到了一份空配置。</p>
+<p>本文适合订阅更新没有明显报错，但列表与预期不一致的情况。如果已经出现授权失败、地址找不到或解析错误，可以先看本站的<a href="https://www.woaifanqiang.blog/posts/daily-2026-10-04-subscription-update-errors/">订阅更新错误处理顺序</a>。</p>
+<p>作者：小六｜资料核对日期：2026年10月16日</p>
+<h2 id="heading">先确认：更新对象和查看对象是否相同</h2>
+<p>一个客户端可能同时保存多份配置，每份配置又可能引用不同的节点集合。点了某个订阅的更新按钮，之后却查看另一份正在运行的配置，就容易觉得列表始终没变。</p>
+<p>先记下当前启用的配置名称、更新条目和操作时间，再看日志是否对应同一次操作。还要分清“整份配置更新”“节点集合更新”和“节点延迟测试”，它们处理的对象不同。</p>
+<p>例如，Mihomo 的代理集合配置分别定义了资源更新间隔与健康检查间隔，后者用于延迟检查。重新测速后数字变了，不代表订阅正文也重新下载过。见<a href="https://wiki.metacubex.one/config/proxy-providers/">代理集合官方配置说明</a>。</p>
+<h2 id="-304">看见 304，先理解缓存校验</h2>
+<p>客户端可以先保存一份资源，后续通过条件请求询问它是否仍然有效。如果返回 <code>304 Not Modified</code>，含义是本次无需重新传输对应资源的完整内容，客户端应结合已有副本处理。304 响应本身没有正文。见 <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/304">MDN 的 304 说明</a>。</p>
+<p>其中，<code>ETag</code> 可以理解为服务器给某个资源版本的标签；客户端可能通过 <code>If-None-Match</code> 带上已有标签进行校验。它不是节点数量，也不是订阅到期时间。</p>
+<p>因此，不要把 304 的空正文保存成新的空订阅，也不要把它直接归类为网络故障。是否正确保留并使用旧副本，还取决于客户端的实现和当前本地状态。</p>
+<h3 id="-304-">这条 304 确实来自订阅请求吗？</h3>
+<p>网页里的图标、脚本也可能产生 304。只有确认时间和资源路径对应正在排查的订阅，才可以把它用于判断。看到服务网站某个请求返回 304，不代表客户端更新也经过同样的过程。</p>
+<p>使用 Mihomo 内核时，其<a href="https://wiki.metacubex.one/config/general/">全局配置文档</a>提供了外部资源下载的 <code>etag-support</code> 选项。但桌面软件自己发起的订阅下载是否采用同一机制，仍应按软件文档和实际日志核对，不能仅凭内核名称推断。</p>
+<h2 id="heading-1">更新成功后，为什么显示数量仍可能不同？</h2>
+<p>订阅来源的内容、客户端保存的副本和最终显示的列表，不一定是同一层。即使拿到了新正文，节点仍可能经过本地处理，或者只有部分集合被当前策略组使用。</p>
+<p>以 Mihomo 代理集合为例，<code>filter</code> 可以筛选节点，<code>exclude-filter</code> 可以按条件排除节点，<code>exclude-type</code> 可以排除特定类型。这些功能见前述官方集合文档。比较节点数时，应先确认是否存在相关处理。</p>
+<p>不要为了凑出与别人截图一样的数量，就直接删除过滤条件。先了解这些条件的用途，再检查缺少的节点是否本来就不属于当前显示范围。</p>
+<p>如果涉及自己的规则扩展，另看<a href="https://www.woaifanqiang.blog/posts/daily-2026-10-05-subscription-custom-rules/">订阅更新后的覆写与备份方法</a>。本次先确认列表来源，不必同时重做全部规则。</p>
+<h2 id="heading-2">用一张表决定下一步</h2>
+<table>
+<thead>
+<tr>
+<th>观察到的情况</th>
+<th>下一步先查什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>当前订阅请求返回 304</td>
+<td>已有副本是否可用、客户端是否正确保留它</td>
+</tr>
+<tr>
+<td>返回 200，但内容与此前相同</td>
+<td>对应入口是否实际提供了更新，是否仍是同一资源</td>
+</tr>
+<tr>
+<td>来源内容有变化，显示列表没变</td>
+<td>筛选、引用关系及当前启用的配置</td>
+</tr>
+<tr>
+<td>日志出现解析或加载错误</td>
+<td>新内容是否被采用，旧配置是否仍在运行</td>
+</tr>
+<tr>
+<td>名称与数量相同，但连接恢复</td>
+<td>连接参数可能已调整，不应只以名称判断</td>
+</tr>
+</tbody>
+</table>
+<p>这些是定位方向，不是对服务方或客户端的故障结论。尤其是 200，只说明请求返回了相应响应，不能单凭状态码证明内容一定比本地副本新。</p>
+<h2 id="heading-3">建议按这个顺序做一次核对</h2>
+<ol>
+<li>保留当前能用的配置与个人扩展，记下启用条目。</li>
+<li>从服务方自己的账户页面核对订阅入口和适配格式，避免拿不同用途的地址比较。</li>
+<li>只更新目标条目一次，记录对应时间、HTTP 状态和解析、加载提示。</li>
+<li>若软件允许在本机查看内容，确认资源确有变化，再核对筛选和运行配置。</li>
+<li>用一个常用节点检查实际连接，并把连接结果与更新结果分别记录。</li>
+</ol>
+<p>内容查看只在本机进行即可，不需要把专属地址或完整配置交给第三方网站。分享记录前，可按本站的<a href="https://www.woaifanqiang.blog/posts/subscription-link-safety/">订阅链接保护清单</a>遮挡凭据。</p>
+<h2 id="heading-4">需要清缓存或重置订阅吗？</h2>
+<p>不必一开始就清空。304 本来就可能依赖已有副本，删除后怎样重新获取，应使用客户端明确支持的更新或重新导入流程，不能假定每款软件都有相同的“强制刷新”行为。</p>
+<p>重置订阅地址也不是缓存修复的通用步骤。若只是列表显示与预期不一致，先保留上述对照信息，再向服务方确认当前入口应该提供什么内容；只有确需重置时，才按其说明处理其他设备的更新。</p>
+<p>想交流“更新成功但列表仍旧”的情况，可以带上客户端版本、更新条目类型、状态码和加载结果，隐藏完整地址与配置内容：<a href="https://t.me/oldsix985">Telegram 联系我</a>。</p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a><a href="https://www.woaifanqiang.blog/tags/subscription-management/"># 订阅管理</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-16-background-task-winhttp-proxy/">← 上一篇</a><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-15-page-first-byte-timing/">下一篇 →</a></nav>
+<section class="comments-section" data-pagefind-ignore><h2>评论</h2><div id="comments"></div></section>
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#heading">先确认：更新对象和查看对象是否相同</a><a class="level-2" href="#-304">看见 304，先理解缓存校验</a><a class="level-3" href="#-304-">这条 304 确实来自订阅请求吗？</a><a class="level-2" href="#heading-1">更新成功后，为什么显示数量仍可能不同？</a><a class="level-2" href="#heading-2">用一张表决定下一步</a><a class="level-2" href="#heading-3">建议按这个顺序做一次核对</a><a class="level-2" href="#heading-4">需要清缓存或重置订阅吗？</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
+<span>© 2026 小六</span>
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":true,"likes":true,"locale":"zh-CN","pageKey":"/p/28381d82-3e22-4686-841d-3a6374427eeb/","pageTitle":"订阅刷新了，列表没变？先看 304 与配置生效","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>
