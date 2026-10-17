@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wi-Fi 能用，网线却不行？代理设置与服务顺序排查 · 小六有点六</title>
+<meta name="description" content="macOS 插网线后代理不能用怎么查？按 Wi-Fi 与以太网服务分别核对系统代理、PAC、本机入口和绕过列表，说明服务顺序与网络位置的适用范围。">
+<meta name="keywords" content="macOS代理设置,以太网代理失效,Wi-Fi切换网线,网络服务顺序,机场客户端排障">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-10-17-macos-proxy-network-services/">
+<meta property="og:title" content="Wi-Fi 能用，网线却不行？代理设置与服务顺序排查">
+<meta property="og:description" content="macOS 插网线后代理不能用怎么查？按 Wi-Fi 与以太网服务分别核对系统代理、PAC、本机入口和绕过列表，说明服务顺序与网络位置的适用范围。">
+<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-10-17-macos-proxy-network-services/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Wi-Fi 能用，网线却不行？代理设置与服务顺序排查">
+<meta name="twitter:description" content="macOS 插网线后代理不能用怎么查？按 Wi-Fi 与以太网服务分别核对系统代理、PAC、本机入口和绕过列表，说明服务顺序与网络位置的适用范围。">
+<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-10-17T09:06:21&#43;08:00"><meta property="article:modified_time" content="2026-10-17T19:42:33&#43;08:00"><meta property="article:tag" content="使用排障">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-17-macos-proxy-network-services/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-10-17T19:42:33+08:00","datePublished":"2026-10-17T09:06:21+08:00","description":"macOS 插网线后代理不能用怎么查？按 Wi-Fi 与以太网服务分别核对系统代理、PAC、本机入口和绕过列表，说明服务顺序与网络位置的适用范围。","headline":"Wi-Fi 能用，网线却不行？代理设置与服务顺序排查","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-17-macos-proxy-network-services/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-17-macos-proxy-network-services/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-10-17-macos-proxy-network-services/","name":"Wi-Fi 能用，网线却不行？代理设置与服务顺序排查","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/artalk.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/artalk.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+<meta name="msvalidate.01" content="3D562902FFD6655EA5B649095B7D8365" />
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1Q9F5NES2X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-1Q9F5NES2X');
+</script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/xblog/google-analytics.js" data-xblog-google-analytics="G-1Q9F5NES2X" data-site-hosts="www.woaifanqiang.blog"></script></head>
+
+<body class="reader-page theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">Wi-Fi 能用，网线却不行？代理设置与服务顺序排查</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">Wi-Fi 能用，网线却不行？代理设置与服务顺序排查</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-10-17T09:06:21&#43;08:00">2026-10-17</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>Wi-Fi 下代理能用，插上网线后却失败，先检查当前网络服务使用了哪份代理设置，再确认本地入口还在运行。macOS 的代理设置入口属于具体网络服务，不能只核对 Wi-Fi 那一页，就认定以太网也配置一致。</p>
+<p>作者：小六｜资料核对日期：2026年10月17日</p>
+<p>本文适用于 Mac 上主要依靠系统代理访问的应用。若使用 TUN、VPN 接管或应用独立代理，应另外检查对应路径；菜单文字也要以所装系统版本为准。</p>
+<h2 id="heading">先记下“换了什么”，保留可用对照</h2>
+<p>不要一遇到异常就更换订阅、节点和客户端。先在本地记一份简短对照，同一个应用、同一个目标、同一个节点，只改变接入方式。</p>
+<table>
+<thead>
+<tr>
+<th>检查项目</th>
+<th>Wi-Fi 可用时</th>
+<th>网线异常时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>正在使用的网络服务</td>
+<td>记下服务名称</td>
+<td>记下以太网或适配器名称</td>
+</tr>
+<tr>
+<td>代理来源</td>
+<td>手动地址或自动脚本</td>
+<td>对照是否相同</td>
+</tr>
+<tr>
+<td>本机客户端</td>
+<td>是否运行、入口端口</td>
+<td>是否仍在运行</td>
+</tr>
+<tr>
+<td>目标请求</td>
+<td>成功或具体报错</td>
+<td>同一请求的实际结果</td>
+</tr>
+</tbody>
+</table>
+<p>这里记录的是自己的观察，不需要为了填表跑完整测速。若网线连接时普通访问也不正常，先确认该连接本身可用，再判断代理环节。</p>
+<h2 id="heading-1">分别打开两种服务的代理页面</h2>
+<p>按 Apple 当前<a href="https://support.apple.com/zh-cn/guide/mac-help/mchlp2591/mac">代理设置说明</a>，入口是苹果菜单里的“系统设置”→“网络”→选中一种网络服务→“详细信息”→“代理”。</p>
+<p>先查看 Wi-Fi，记录相关开关、服务器和端口；再返回网络列表，选中实际使用的以太网服务逐项对照。通过扩展坞接网线时，服务名称可能与“以太网”不完全一样，应按设备和连接状态确认。</p>
+<p>这一步常能发现具体差异：一边启用了手动代理，另一边没有；或者另一边仍保留旧客户端的端口。客户端菜单显示“系统代理已开”，也值得回到对应服务页面确认实际写入结果。</p>
+<h2 id="heading-2">地址、端口和自动脚本，不要混填</h2>
+<p>重点核对你实际采用的方式，不必把所有代理开关一起打开。</p>
+<table>
+<thead>
+<tr>
+<th>设置项目</th>
+<th>核对重点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>网页代理 HTTP、安全网页代理 HTTPS</td>
+<td>对应客户端说明中的入口地址、端口及认证条件</td>
+</tr>
+<tr>
+<td>SOCKS 代理</td>
+<td>入口确实支持 SOCKS，不能只凭端口数字猜测</td>
+</tr>
+<tr>
+<td>自动代理配置</td>
+<td>填写 PAC 文件地址，而非机场订阅链接</td>
+</tr>
+<tr>
+<td>忽略这些主机与域</td>
+<td>受影响目标是否被列为绕过代理</td>
+</tr>
+</tbody>
+</table>
+<p>如果使用自动脚本，还要确认脚本能取得、能执行，以及目标返回了什么选择。可继续参考本站<a href="https://www.woaifanqiang.blog/posts/daily-2026-10-12-pac-proxy-troubleshooting/">PAC 自动代理检查方法</a>，避免把脚本问题和本机端口问题混在一起。</p>
+<h3 id="-127001">插网线后，要不要换掉 127.0.0.1？</h3>
+<p>如果客户端就运行在这台 Mac 上，回环地址 <code>127.0.0.1</code> 指向的仍是本机，不会因为 Wi-Fi 换成网线，就变成另一台设备。先检查客户端是否启动、端口是否改变，以及所填入口是否支持对应协议。</p>
+<p>若代理运行在另一台电脑上，则要核对那台设备的可达地址；不能把本机回环地址照搬过去。这是代理位置不同，不能靠随意替换端口解决。</p>
+<h2 id="heading-3">两种连接都开着，再看服务顺序</h2>
+<p>Apple 的<a href="https://support.apple.com/zh-cn/guide/mac-help/mchlp2711/mac">网络服务顺序说明</a>指出，存在多个活跃连接时，系统会优先尝试列表上方的连接。可以在“网络”的操作菜单中查看“设定服务顺序”。</p>
+<p>这能帮助理解为什么插入网线后连接行为变化，但服务顺序不能代替实际路径检查，也不是决定所有应用最终出口的总开关。官方还说明，VPN 连接的顺序不能用这里调整。</p>
+<p>需要缩小范围时，先记录原顺序，再分别只保留一种普通接入方式做对照。不要同时改服务顺序、节点、DNS 和代理类型，否则即使恢复，也难以知道是哪项起作用。</p>
+<h2 id="heading-4">用结果决定下一步</h2>
+<h3 id="heading-5">系统设置不一致</h3>
+<p>按照已经确认可用的客户端说明，核对异常服务所需项目，应用设置后重试同一目标。只修正已经发现的差异，不必删除全部网络服务重建。</p>
+<h3 id="heading-6">设置一致，但仅一个应用失败</h3>
+<p>查看该应用是否采用系统设置，是否另有代理选项。浏览器成功只能证明这次浏览器请求可用，不能证明每个后台工具都走同一入口。</p>
+<h3 id="heading-7">请求已经进入客户端</h3>
+<p>继续检查该请求的命中规则、策略组和最终出口。使用 TUN 的读者，可结合本站<a href="https://www.woaifanqiang.blog/posts/rule-global-tun-guide/">系统代理与 TUN 的区别</a>区分“如何接收连接”和“收到以后如何分流”。</p>
+<h2 id="heading-8">经常在不同环境切换，可以检查网络位置</h2>
+<p>macOS 的“网络位置”是一组可切换的网络设置，不是地图定位。Apple 的<a href="https://support.apple.com/zh-cn/guide/mac-help/mchlp1175/mac">网络位置管理说明</a>介绍了创建、复制和切换的方法；多数情况下默认“自动”位置已经足够。</p>
+<p>如果自己曾创建多个位置，先确认当前选中了哪个，再核对相应服务。确实需要保存不同环境的设置时，可以按文档建立独立位置，保留原配置作为对照，而不是每天重新填写。</p>
+<p>修正后再分别用 Wi-Fi 和网线验证一次，并记录使用的服务、代理来源和结果。欢迎带着这些脱敏信息交流：<a href="https://t.me/oldsix985">Telegram 联系我</a></p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/posts/%E6%9C%BA%E5%9C%BA%E8%AF%84%E6%B5%8B%E4%B8%8E%E6%8E%A8%E8%8D%90/">← 上一篇</a><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-17-domain-rule-matching/">下一篇 →</a></nav>
+<section class="comments-section" data-pagefind-ignore><h2>评论</h2><div id="comments"></div></section>
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#heading">先记下“换了什么”，保留可用对照</a><a class="level-2" href="#heading-1">分别打开两种服务的代理页面</a><a class="level-2" href="#heading-2">地址、端口和自动脚本，不要混填</a><a class="level-3" href="#-127001">插网线后，要不要换掉 127.0.0.1？</a><a class="level-2" href="#heading-3">两种连接都开着，再看服务顺序</a><a class="level-2" href="#heading-4">用结果决定下一步</a><a class="level-3" href="#heading-5">系统设置不一致</a><a class="level-3" href="#heading-6">设置一致，但仅一个应用失败</a><a class="level-3" href="#heading-7">请求已经进入客户端</a><a class="level-2" href="#heading-8">经常在不同环境切换，可以检查网络位置</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
+<span>© 2026 小六</span>
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":true,"likes":true,"locale":"zh-CN","pageKey":"/p/7befd799-aba5-476d-93be-cce98340280e/","pageTitle":"Wi-Fi 能用，网线却不行？代理设置与服务顺序排查","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>
