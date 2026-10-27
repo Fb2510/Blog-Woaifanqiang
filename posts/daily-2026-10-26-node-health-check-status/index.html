@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>节点显示超时却能用？健康检查地址与状态码怎么查 · 小六有点六</title>
+<meta name="description" content="机场节点显示超时但网页能用怎么办？解释 Mihomo 健康检查地址、expected-status、204 响应、interval 与 timeout 单位及懒惰检查，帮助核对真实访问与探测结果。">
+<meta name="keywords" content="节点超时却能用,代理健康检查,expected-status,204状态码,节点延迟测试">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-10-26-node-health-check-status/">
+<meta property="og:title" content="节点显示超时却能用？健康检查地址与状态码怎么查">
+<meta property="og:description" content="机场节点显示超时但网页能用怎么办？解释 Mihomo 健康检查地址、expected-status、204 响应、interval 与 timeout 单位及懒惰检查，帮助核对真实访问与探测结果。">
+<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-10-26-node-health-check-status/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="节点显示超时却能用？健康检查地址与状态码怎么查">
+<meta name="twitter:description" content="机场节点显示超时但网页能用怎么办？解释 Mihomo 健康检查地址、expected-status、204 响应、interval 与 timeout 单位及懒惰检查，帮助核对真实访问与探测结果。">
+<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-10-26T09:05:03&#43;08:00"><meta property="article:modified_time" content="2026-10-26T22:44:42&#43;08:00"><meta property="article:tag" content="节点测速"><meta property="article:tag" content="使用排障">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-26-node-health-check-status/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-10-26T22:44:42+08:00","datePublished":"2026-10-26T09:05:03+08:00","description":"机场节点显示超时但网页能用怎么办？解释 Mihomo 健康检查地址、expected-status、204 响应、interval 与 timeout 单位及懒惰检查，帮助核对真实访问与探测结果。","headline":"节点显示超时却能用？健康检查地址与状态码怎么查","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-26-node-health-check-status/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-26-node-health-check-status/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-10-26-node-health-check-status/","name":"节点显示超时却能用？健康检查地址与状态码怎么查","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/artalk.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/artalk.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+<meta name="msvalidate.01" content="3D562902FFD6655EA5B649095B7D8365" />
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1Q9F5NES2X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-1Q9F5NES2X');
+</script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/xblog/google-analytics.js" data-xblog-google-analytics="G-1Q9F5NES2X" data-site-hosts="www.woaifanqiang.blog"></script></head>
+
+<body class="reader-page theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">节点显示超时却能用？健康检查地址与状态码怎么查</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">节点显示超时却能用？健康检查地址与状态码怎么查</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-10-26T09:05:03&#43;08:00">2026-10-26</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>节点列表显示超时，网页却还能打开，先核对健康检查的目标地址、判定条件和更新时间，再确认网页实际用了哪个节点。一次检查失败，只能说明那次探测没有满足要求，不能直接推断所有应用都无法访问。</p>
+<p>作者：小六｜资料核对日期：2026年10月26日</p>
+<p>本文以使用 Mihomo 内核的客户端为例，重点解释 HTTP 健康检查。界面颜色、负数和“不可用”等提示的具体含义，要结合客户端说明与日志判断。</p>
+<h2 id="heading">第一项：网页真的用了同一个节点吗？</h2>
+<p>先选择一个有问题的具体节点，对常用目标发起新请求，并查看连接记录中的最终出口。上层策略组的名字相同，不代表每次选中的具体节点相同。</p>
+<p>如果浏览器走了直连，或者策略组已经换到其他候选，那么“网页能打开”还不能证明列表里那个超时节点可用。先把比较对象对齐，后面再看检查本身。</p>
+<p>建议记下节点、请求时间、目标和最终出口。少量明确的新请求已经能提供线索，不需要把全部节点轮流测速。</p>
+<h2 id="heading-1">第二项：检查的是哪个地址？</h2>
+<p>健康检查会请求指定目标，它并不会同时访问你常用的所有网站。Mihomo 的<a href="https://wiki.metacubex.one/config/proxy-providers/#health-check">代理集合文档</a>单独列出了检查地址、间隔和超时等设置。</p>
+<p>因此，同一个节点能访问目标 A，但对检查目标 B 失败，并不矛盾。应先核对完整地址与错误阶段，再判断是测试目标的问题，还是连接本身异常。</p>
+<p>还要找到实际生效的设置位置：客户端手动测试、策略组检查和代理集合检查，不能只凭界面上都有“延迟”两个字，就当成同一项操作。节点通过 <code>use</code> 从集合引入时，也应检查集合自身的 <code>health-check</code>，不能只改策略组里的地址。</p>
+<h2 id="204-">第三项：204 没有页面内容，正常吗？</h2>
+<p>正常。HTTP <code>204 No Content</code> 表示请求已成功处理，但没有响应正文，见 <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204">MDN 的 204 说明</a>。检查地址没有显示一篇网页，本身不能作为失败依据，应查看实际状态码。</p>
+<p>关键在于地址与预期是否配套。Mihomo 的<a href="https://wiki.metacubex.one/config/proxy-groups/#expected-status">策略组通用字段</a>说明，设置 <code>expected-status</code> 后，响应状态必须符合所配条件，才会被视为可用；默认 <code>*</code> 表示不要求特定状态码。</p>
+<p>例如，检查要求 <code>204</code>，目标却正常返回 <code>200</code>，就可能因为条件不符而未通过。这里是解释判定逻辑，没有代表任何服务的实测结果。</p>
+<h3 id="heading-2">能不能把状态要求全部放宽？</h3>
+<p>先查清目标应当返回什么。若目标实际给出登录页或错误页，仅仅放宽条件让它变绿，会减少检查提供的信息。反过来，对本来应返回 <code>200</code> 的目标坚持要求 <code>204</code>，也不能准确表达你的检查目的。</p>
+<p>修改前保留原设置，每次只调整相关条件，再对照真实访问结果。绿灯与红灯都要结合检查范围解释。</p>
+<h2 id="heading-3">第四项：间隔与超时，单位不要混用</h2>
+<p>两项控制的事情不同，下面的数字只是单位示例，不是通用推荐值。</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>单位与含义</th>
+<th>示例换算</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>interval</code></td>
+<td>秒，表示定时检查间隔</td>
+<td><code>300</code> 为 5 分钟</td>
+</tr>
+<tr>
+<td><code>timeout</code></td>
+<td>毫秒，表示单次检查的等待上限</td>
+<td><code>5000</code> 为 5 秒</td>
+</tr>
+<tr>
+<td><code>lazy</code></td>
+<td>影响未使用时是否执行检查</td>
+<td>需按所在组或集合核对</td>
+</tr>
+</tbody>
+</table>
+<p>这些定义可以在前述官方文档中核对。界面上的“超时”并不等同于节点永久失效，也可能是当前条件下没有在阈值内完成检查。</p>
+<p>如果仅调整等待上限后通过，只能说明判定条件发生了变化，不能证明节点突然变快。比较前后结果时，应记录是否换过地址或阈值。</p>
+<h2 id="heading-4">第五项：显示的是新结果，还是旧结果？</h2>
+<p>Mihomo 为组与集合分别提供懒惰检查设置。文档说明，默认启用的相关懒惰行为会使未使用的组或集合节点不持续接受对应检查。因此，列表里留下一个数字，不代表刚刚又测了一次。</p>
+<p>查看测试时间，必要时按客户端支持的入口触发一次检查，并确认完成。刷新界面、更新订阅和完成节点健康检查，是需要分别核对的动作。</p>
+<p>如果自动选择的表现与预期不同，可以接着看<a href="https://www.woaifanqiang.blog/posts/daily-2026-09-30-proxy-group-selection/">策略组选择指南</a>；其中的自动选择示例也可对照<a href="https://wiki.metacubex.one/config/proxy-groups/url-test/">官方 url-test 文档</a>。</p>
+<h2 id="heading-5">按现象推进，避免反复盲测</h2>
+<table>
+<thead>
+<tr>
+<th>看到的现象</th>
+<th>下一步重点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>多个节点只对同一检查地址失败</td>
+<td>核对目标地址、响应与共同错误</td>
+</tr>
+<tr>
+<td>某节点对检查地址和常用目标都失败</td>
+<td>继续检查该节点与连接日志</td>
+</tr>
+<tr>
+<td>日志有明确证书错误</td>
+<td>按证书错误处理，单纯延长等待通常无助</td>
+</tr>
+<tr>
+<td>检查通过，但应用仍不正常</td>
+<td>查应用请求、规则和实际目标，不能用绿灯代替验证</td>
+</tr>
+</tbody>
+</table>
+<p>涉及证书时，可参考本站<a href="https://www.woaifanqiang.blog/posts/daily-2026-10-05-proxy-tls-certificate-errors/">证书错误检查顺序</a>。想比较节点表现，则继续看<a href="https://www.woaifanqiang.blog/posts/node-speed-test-guide/">测速记录方法</a>，把探测延迟与持续传输分开记录。</p>
+<p>保留客户端版本、检查地址、阈值、状态码或脱敏错误，以及实际请求出口，通常已经足够展开交流。无需发送完整订阅或节点密码：<a href="https://t.me/oldsix985">Telegram 联系我</a></p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/node-testing/"># 节点测速</a><a href="https://www.woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-27-sse-buffering-stream-timeout/">← 上一篇</a><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-18-client-package-architecture-checksum/">下一篇 →</a></nav>
+<section class="comments-section" data-pagefind-ignore><h2>评论</h2><div id="comments"></div></section>
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#heading">第一项：网页真的用了同一个节点吗？</a><a class="level-2" href="#heading-1">第二项：检查的是哪个地址？</a><a class="level-2" href="#204-">第三项：204 没有页面内容，正常吗？</a><a class="level-3" href="#heading-2">能不能把状态要求全部放宽？</a><a class="level-2" href="#heading-3">第四项：间隔与超时，单位不要混用</a><a class="level-2" href="#heading-4">第五项：显示的是新结果，还是旧结果？</a><a class="level-2" href="#heading-5">按现象推进，避免反复盲测</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
+<span>© 2026 小六</span>
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":true,"likes":true,"locale":"zh-CN","pageKey":"/p/5f8a86f0-c2d9-43c9-acbf-8563afe0ab1f/","pageTitle":"节点显示超时却能用？健康检查地址与状态码怎么查","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>
