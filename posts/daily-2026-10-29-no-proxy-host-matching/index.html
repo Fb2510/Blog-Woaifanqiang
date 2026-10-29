@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NO_PROXY 不生效？域名、IP 与网段排除怎么查 · 小六有点六</title>
+<meta name="description" content="NO_PROXY 设置后为什么仍走代理？说明 curl 的域名匹配、IP 与 CIDR 排除、通配符范围、--noproxy 覆盖及 proxy_used 输出，帮助核对实际访问路径。">
+<meta name="keywords" content="NO_PROXY不生效,curl代理排除,noproxy域名匹配,CIDR网段排除,命令行代理排障">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-10-29-no-proxy-host-matching/">
+<meta property="og:title" content="NO_PROXY 不生效？域名、IP 与网段排除怎么查">
+<meta property="og:description" content="NO_PROXY 设置后为什么仍走代理？说明 curl 的域名匹配、IP 与 CIDR 排除、通配符范围、--noproxy 覆盖及 proxy_used 输出，帮助核对实际访问路径。">
+<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-10-29-no-proxy-host-matching/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="NO_PROXY 不生效？域名、IP 与网段排除怎么查">
+<meta name="twitter:description" content="NO_PROXY 设置后为什么仍走代理？说明 curl 的域名匹配、IP 与 CIDR 排除、通配符范围、--noproxy 覆盖及 proxy_used 输出，帮助核对实际访问路径。">
+<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-10-29T09:08:48&#43;08:00"><meta property="article:modified_time" content="2026-10-29T15:50:02&#43;08:00"><meta property="article:tag" content="使用排障">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-29-no-proxy-host-matching/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-10-29T15:50:02+08:00","datePublished":"2026-10-29T09:08:48+08:00","description":"NO_PROXY 设置后为什么仍走代理？说明 curl 的域名匹配、IP 与 CIDR 排除、通配符范围、--noproxy 覆盖及 proxy_used 输出，帮助核对实际访问路径。","headline":"NO_PROXY 不生效？域名、IP 与网段排除怎么查","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-10-29-no-proxy-host-matching/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-10-29-no-proxy-host-matching/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-10-29-no-proxy-host-matching/","name":"NO_PROXY 不生效？域名、IP 与网段排除怎么查","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/artalk.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/artalk.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+<meta name="msvalidate.01" content="3D562902FFD6655EA5B649095B7D8365" />
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1Q9F5NES2X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-1Q9F5NES2X');
+</script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/xblog/google-analytics.js" data-xblog-google-analytics="G-1Q9F5NES2X" data-site-hosts="www.woaifanqiang.blog"></script></head>
+
+<body class="reader-page theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">NO_PROXY 不生效？域名、IP 与网段排除怎么查</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">NO_PROXY 不生效？域名、IP 与网段排除怎么查</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-10-29T09:08:48&#43;08:00">2026-10-29</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>NO_PROXY 设置后仍走错路径，先核对列表写的是访问目标还是代理入口，再检查目标的域名、IP 写法和命令行覆盖项。排除条件是否命中，与目标最后能不能访问成功，是需要分别验证的两件事。</p>
+<p>作者：小六｜资料核对日期：2026年10月29日</p>
+<p>本文以 Windows PowerShell 调用 <code>curl.exe</code> 为例。不同软件对代理变量的支持和匹配规则可能不同，下面的写法应按 curl 的范围理解。</p>
+<h2 id="no-proxy-">NO_PROXY 里应该填哪个地址？</h2>
+<p>假设本机代理入口是 <code>127.0.0.1:7890</code>，你要访问的是 <code>https://files.example.com/report</code>。排除列表需要检查的是目标 <code>files.example.com</code>，不是因为代理运行在本机，就把所有问题都归到 <code>127.0.0.1</code> 这一项。</p>
+<p>换句话说，把本机地址列入排除项，只会影响匹配到该目标的访问，并不会自动排除所有发往本机代理的请求。curl 的<a href="https://everything.curl.dev/usingcurl/proxies/env.html">代理环境变量说明</a>介绍了 NO_PROXY 对目标主机的作用。</p>
+<p>填写时使用逗号分隔目标，先从明确需要排除的地址开始。不要把网页协议、路径和查询参数整串贴入主机列表，也不要用一个过大的范围掩盖单个目标的问题。</p>
+<h2 id="heading">域名条目会匹配到哪里？</h2>
+<p>按照 <a href="https://curl.se/docs/manpage.html#--noproxy">curl 官方手册</a>，域名条目可以匹配域名本身及其子域，但并不是任意文字包含匹配。</p>
+<table>
+<thead>
+<tr>
+<th>排除条目</th>
+<th>在本文讨论的 curl 行为中</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>example.com</code></td>
+<td>匹配它本身及 <code>files.example.com</code> 等子域</td>
+</tr>
+<tr>
+<td><code>example.com</code></td>
+<td>不会因为名字相似，就匹配 <code>otherexample.com</code></td>
+</tr>
+<tr>
+<td><code>localhost</code></td>
+<td>先按 URL 中使用的这个主机名核对</td>
+</tr>
+<tr>
+<td><code>127.0.0.1</code></td>
+<td>用于核对相应的 IPv4 地址目标</td>
+</tr>
+<tr>
+<td><code>::1</code></td>
+<td>IPv6 回环地址在排除列表中不加方括号</td>
+</tr>
+</tbody>
+</table>
+<p>如果只需要排除 <code>files.example.com</code> 及它下面的子域，可以核对这个更具体的条目；直接写 <code>example.com</code>，覆盖范围会更大。先列出真正要排除的目标，再选择相应域名层级，避免让同一域名下的其他服务一起改变路径。</p>
+<p>IPv6 条目的格式见 <a href="https://curl.se/libcurl/c/CURLOPT_NOPROXY.html">libcurl 的 NOPROXY 文档</a>。不要把主机名、IP 和完整 URL 的格式混成一套。</p>
+<p>curl 在这里支持的通配方式是单独的 <code>*</code>，它会匹配所有目标。<code>*.example.com</code>、正则表达式以及客户端里的其他分流语法，不应直接当作等价写法。</p>
+<p>如果只是让某个本地服务不采用代理，把值设成 <code>*</code> 会扩大到全部目标。先检查以前测试留下的这一项，避免误以为只有一个站点受影响。</p>
+<h2 id="heading-1">网段排除，需要确认工具版本</h2>
+<p>curl 从 7.86.0 开始支持 CIDR 网段写法。例如 <code>192.168.0.0/16</code> 用于匹配对应地址范围，版本条件和说明见前述官方文档。</p>
+<p>先用 <code>curl.exe --version</code> 核对实际调用的程序。电脑上有多个 curl 时，某个应用附带的版本，与终端调用的版本未必相同。</p>
+<p>IP 和网段示例适合先用 IP 字面量目标核对；如果 URL 使用域名，就先按该域名检查排除条目，不把域名与某次解析出的地址直接当作同一种输入。也不要用整个私有地址模板替代自己实际需要的范围。</p>
+<h2 id="-powershell-">在当前 PowerShell 中保留最小范围</h2>
+<p>下面演示给当前进程设置一份列表，域名只是示例，应替换为自己的明确需求：</p>
+<pre><code class="language-powershell">$env:NO_PROXY = 'localhost,127.0.0.1,::1,example.com'
+</code></pre>
+<p>先记下原值，再做必要调整。这种设置作用于当前 PowerShell 及其之后启动的子进程，不等于浏览器、已经运行的服务和其他终端都会自动采用它。</p>
+<p>如果重点是本地 NAS、打印机或路由器访问，也要确认对应应用是否读取该变量。相关范围可以结合本站<a href="https://www.woaifanqiang.blog/posts/daily-2026-10-05-proxy-lan-access/">局域网访问与 TUN 排除说明</a>理解。</p>
+<h2 id="heading-2">环境变量正确，脚本为什么仍然不同？</h2>
+<p>检查实际命令有没有 <code>--noproxy</code>。curl 手册说明，它会覆盖 <code>no_proxy</code>、<code>NO_PROXY</code> 环境排除设置；多次提供这个参数时，以最后一次设置为准。</p>
+<p>因此，检查脚本、任务启动参数和最终执行的命令结构，比只看终端里保存了什么值更有用。核对时不要把带账号的代理地址或完整环境变量列表发到公开页面。</p>
+<h2 id="heading-3">用明确输出区分代理选择与访问结果</h2>
+<p>curl 8.7.0 起提供 <code>proxy_used</code> 输出变量，表示该次传输是否使用代理。下面假设你已有本机 HTTP 代理和自己的本地测试服务，两处端口都只是示例：</p>
+<pre><code class="language-powershell">curl.exe -q --proxy http://127.0.0.1:7890 --noproxy &quot;localhost,127.0.0.1&quot; --max-time 15 --output NUL --write-out &quot;proxy_used=%{proxy_used}\n&quot; http://127.0.0.1:8080/
+</code></pre>
+<p><code>-q</code> 放在首位，用于避免默认配置文件干扰这次核对；示例里的 <code>--noproxy</code> 则明确指定本次排除范围。<code>proxy_used</code> 的版本和含义可在<a href="https://curl.se/docs/manpage.html#--write-out">官方输出字段说明</a>查到。</p>
+<p>输出为 <code>0</code>，表示 curl 这次没有使用其代理设置，不代表目标服务必定正常。若本地服务没有启动，仍可能连接失败；先检查错误类型，再检查目标地址和端口。</p>
+<p>系统还有 TUN 或其他网关时，这个值也不能证明后续路径一定没有经过节点。可结合<a href="https://www.woaifanqiang.blog/posts/rule-global-tun-guide/">代理入口与分流模式指南</a>检查实际接管范围。</p>
+<p>若需要先核对 HTTP、SOCKS 和端口类型，可以继续看<a href="https://www.woaifanqiang.blog/posts/daily-2026-10-05-curl-proxy-configuration/">命令行代理基础检查</a>。想交流排除规则，可以提供版本、目标写法、脱敏后的条目和结果：<a href="https://t.me/oldsix985">Telegram 联系我</a></p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/posts/%E6%9C%BA%E5%9C%BA%E8%AF%84%E6%B5%8B%E4%B8%8E%E6%8E%A8%E8%8D%90/">← 上一篇</a><a href="https://www.woaifanqiang.blog/posts/daily-2026-10-28-http-gateway-errors/">下一篇 →</a></nav>
+<section class="comments-section" data-pagefind-ignore><h2>评论</h2><div id="comments"></div></section>
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#no-proxy-">NO_PROXY 里应该填哪个地址？</a><a class="level-2" href="#heading">域名条目会匹配到哪里？</a><a class="level-2" href="#heading-1">网段排除，需要确认工具版本</a><a class="level-2" href="#-powershell-">在当前 PowerShell 中保留最小范围</a><a class="level-2" href="#heading-2">环境变量正确，脚本为什么仍然不同？</a><a class="level-2" href="#heading-3">用明确输出区分代理选择与访问结果</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
+<span>© 2026 小六</span>
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":true,"likes":true,"locale":"zh-CN","pageKey":"/p/7ef8ad28-c7c9-47c0-be4f-cfc7dedf30d7/","pageTitle":"NO_PROXY 不生效？域名、IP 与网段排除怎么查","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>
