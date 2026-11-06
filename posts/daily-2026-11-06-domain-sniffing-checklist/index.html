@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>域名嗅探要开启吗？分流作用、识别限制与核对方法 · 小六有点六</title>
+<meta name="description" content="域名嗅探要不要开启？结合 Mihomo 官方资料，说明嗅探不生效的检查条件、HTTPS 与 ECH 的识别边界，以及 override-destination 对目标和分流的影响。">
+<meta name="keywords" content="域名嗅探要开启吗,客户端嗅探不生效,override-destination,代理分流">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-11-06-domain-sniffing-checklist/">
+<meta property="og:title" content="域名嗅探要开启吗？分流作用、识别限制与核对方法">
+<meta property="og:description" content="域名嗅探要不要开启？结合 Mihomo 官方资料，说明嗅探不生效的检查条件、HTTPS 与 ECH 的识别边界，以及 override-destination 对目标和分流的影响。">
+<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-11-06-domain-sniffing-checklist/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="域名嗅探要开启吗？分流作用、识别限制与核对方法">
+<meta name="twitter:description" content="域名嗅探要不要开启？结合 Mihomo 官方资料，说明嗅探不生效的检查条件、HTTPS 与 ECH 的识别边界，以及 override-destination 对目标和分流的影响。">
+<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-11-06T09:04:04&#43;08:00"><meta property="article:modified_time" content="2026-11-06T21:09:28&#43;08:00"><meta property="article:tag" content="新手入门"><meta property="article:tag" content="使用排障">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-11-06-domain-sniffing-checklist/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-11-06T21:09:28+08:00","datePublished":"2026-11-06T09:04:04+08:00","description":"域名嗅探要不要开启？结合 Mihomo 官方资料，说明嗅探不生效的检查条件、HTTPS 与 ECH 的识别边界，以及 override-destination 对目标和分流的影响。","headline":"域名嗅探要开启吗？分流作用、识别限制与核对方法","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-11-06-domain-sniffing-checklist/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-11-06-domain-sniffing-checklist/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-11-06-domain-sniffing-checklist/","name":"域名嗅探要开启吗？分流作用、识别限制与核对方法","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/artalk.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/artalk.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+<meta name="msvalidate.01" content="3D562902FFD6655EA5B649095B7D8365" />
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1Q9F5NES2X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-1Q9F5NES2X');
+</script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/xblog/google-analytics.js" data-xblog-google-analytics="G-1Q9F5NES2X" data-site-hosts="www.woaifanqiang.blog"></script></head>
+
+<body class="reader-page theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">域名嗅探要开启吗？分流作用、识别限制与核对方法</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">域名嗅探要开启吗？分流作用、识别限制与核对方法</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-11-06T09:04:04&#43;08:00">2026-11-06</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>域名嗅探不必一律开启。它可以尝试从连接数据中补充域名，帮助客户端按域名分流；如果当前连接已能正确识别、规则也符合预期，先保留现有配置即可。是否需要它，应由具体异常和对照结果决定。</p>
+<p>本文以 Mihomo 内核为例，适用于已经进入客户端的新连接。其他内核、不同版本及客户端界面的选项，需要分别核对，不能直接照搬字段。</p>
+<h2 id="heading">嗅探从哪里找到域名？</h2>
+<p>可以把它理解成查看连接开头的“地址线索”。例如，明文 HTTP 请求可能带有 Host；普通 TLS 握手的 ClientHello 可能带有服务器名称，也就是常说的 SNI。Mihomo 的 <a href="https://github.com/MetaCubeX/mihomo/blob/Meta/component/sniffer/http_sniffer.go">HTTP 识别实现</a>和 <a href="https://github.com/MetaCubeX/mihomo/blob/Meta/component/sniffer/tls_sniffer.go">TLS 识别实现</a>体现了这些处理。</p>
+<p>客户端也可能从应用提交的目标信息、DNS 记录或 Fake-IP 映射中获得域名。因此，连接列表显示了域名，不足以证明它来自嗅探。映射机制可延伸阅读本站的 <a href="https://www.woaifanqiang.blog/posts/daily-2026-10-07-mihomo-fake-ip-address/">Fake-IP 说明</a>。</p>
+<h2 id="-https-">识别出域名，能看到 HTTPS 正文吗？</h2>
+<p>普通域名嗅探并不会因此获得 HTTPS 网页正文、密码或完整页面路径。TLS 的数据保密机制与握手中的名称线索是不同层面，相关边界见 <a href="https://www.rfc-editor.org/rfc/rfc8446.html#section-1">TLS 1.3 标准说明</a>。这里讨论的是通常的端到端 HTTPS 连接。</p>
+<p>开启本功能也不要求安装根证书。若另一个工具要求导入证书来检查 HTTPS 内容，那涉及额外的解密机制，应单独了解其用途，不能当成本项功能的必需步骤。</p>
+<p>同时，域名本身也是访问线索。分享连接截图前仍要检查其中的网站名称、账户标识和订阅信息；正文受到加密保护，并不表示连接记录没有隐私价值。</p>
+<h2 id="heading-1">开了开关，为什么仍然识别不到？</h2>
+<p>先检查生效配置，而不只是界面上的勾选状态。按当次核对的 <a href="https://wiki.metacubex.one/config/sniff/">Mihomo 嗅探文档</a>，至少有这些条件：</p>
+<table>
+<thead>
+<tr>
+<th>核对项目</th>
+<th>要确认的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>协议与端口</td>
+<td>是否配置了相应的 HTTP、TLS 或 QUIC，目标端口是否在范围内</td>
+</tr>
+<tr>
+<td>触发条件</td>
+<td>对仅有 IP、或 redir-host 映射的连接，相关设置是否符合需求</td>
+</tr>
+<tr>
+<td>排除范围</td>
+<td>域名、来源地址或目标地址是否被配置为跳过</td>
+</tr>
+<tr>
+<td>连接数据</td>
+<td>本次连接是否提供了能被识别的名称线索</td>
+</tr>
+</tbody>
+</table>
+<p>其中 <code>parse-pure-ip</code> 面向尚未获得域名的流量，<code>force-dns-mapping</code> 涉及 redir-host 类型识别的流量。它们控制尝试范围，不保证任何连接都能成功还原域名。不要为了一个应用，把所有端口和设备都扩大到尝试范围。</p>
+<h3 id="ech-">ECH 会影响判断吗？</h3>
+<p>会影响只依赖普通 SNI 提取的判断。ECH 用于保护 ClientHello 中的真实名称等信息，普通嗅探不能凭空恢复受保护的内层字段，见 <a href="https://datatracker.ietf.org/doc/html/rfc9849#section-1">RFC 9849 的机制说明</a>。</p>
+<p>不过，客户端仍可能从 DNS 或应用提供的信息取得域名。记录中有名字，不能证明 ECH 没生效；没有名字，也不能单独证明节点故障。排查应确认信息来自哪里，再决定用什么规则。</p>
+<h2 id="heading-2">“识别名称”和“覆盖目标”要分别检查</h2>
+<p><code>override-destination</code> 控制是否将嗅探结果用作实际访问目标。当前实现中，识别结果会记录在 <code>SniffHost</code>；启用覆盖时，还会改写目标主机信息并清除原目标 IP。细节见<a href="https://github.com/MetaCubeX/mihomo/blob/Meta/component/sniffer/dispatcher.go">嗅探调度实现</a>。</p>
+<p>另一个容易漏掉的细节是：<a href="https://github.com/MetaCubeX/mihomo/blob/Meta/constant/metadata.go">域名规则取值实现</a>会优先采用已有的嗅探域名。因此，关闭“覆盖目标”也不能理解成“嗅探结果只供展示，绝不影响分流”。</p>
+<p>这解释了为什么应分别记录识别名称、命中规则和最终出口。出现变化时，不能只看连接列表多了一个域名，就认定已经修好；还要确认访问结果符合预期。具体行为以所用内核版本为准。</p>
+<h2 id="heading-3">用一个目标完成开启前后的对照</h2>
+<h3 id="1-">1. 保存基线</h3>
+<p>备份当前配置，记录客户端及内核版本。固定目标、节点和连接方式，在规则模式下发起一次请求，记下目标信息、命中规则、出口与实际错误。</p>
+<h3 id="2-">2. 只调整相关设置</h3>
+<p>按文档检查协议、端口与排除项，再调整需要验证的选项。保持 DNS、节点及规则顺序不变，重新加载配置后建立新连接。旧连接不能代替新设置的验证。</p>
+<h3 id="3-">3. 同时检查结果与兼容性</h3>
+<p>比较域名是否补全、规则是否改变、页面是否恢复。只有特定应用出现异常时，恢复基线，再针对它的目标或来源范围研究排除配置。不要仅凭一条嗅探失败日志，就重置整个系统。</p>
+<p>如果域名已经正确而出口仍然不对，继续查规则顺序及策略组选择，可参考本站<a href="https://www.woaifanqiang.blog/posts/daily-2026-10-17-domain-rule-matching/">域名分流规则核对方法</a>。嗅探提供的是判断线索，无法修正写错的匹配范围，也不能保证提速。</p>
+<p>作者：小六｜资料核对日期：2026-11-06。</p>
+<p>想判断自己的情况是否需要开启嗅探，可以带上内核版本、相关选项及脱敏后的新连接记录，通过 <a href="https://t.me/oldsix985">Telegram 联系我</a>交流。无需发送完整订阅或账户凭据。</p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/getting-started/"># 新手入门</a><a href="https://www.woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/posts/%E6%9C%BA%E5%9C%BA%E8%AF%84%E6%B5%8B%E4%B8%8E%E6%8E%A8%E8%8D%90/">← 上一篇</a><a href="https://www.woaifanqiang.blog/posts/daily-2026-11-05-video-buffering-dropped-frames/">下一篇 →</a></nav>
+<section class="comments-section" data-pagefind-ignore><h2>评论</h2><div id="comments"></div></section>
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#heading">嗅探从哪里找到域名？</a><a class="level-2" href="#-https-">识别出域名，能看到 HTTPS 正文吗？</a><a class="level-2" href="#heading-1">开了开关，为什么仍然识别不到？</a><a class="level-3" href="#ech-">ECH 会影响判断吗？</a><a class="level-2" href="#heading-2">“识别名称”和“覆盖目标”要分别检查</a><a class="level-2" href="#heading-3">用一个目标完成开启前后的对照</a><a class="level-3" href="#1-">1. 保存基线</a><a class="level-3" href="#2-">2. 只调整相关设置</a><a class="level-3" href="#3-">3. 同时检查结果与兼容性</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
+<span>© 2026 小六</span>
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":true,"likes":true,"locale":"zh-CN","pageKey":"/p/e014eeda-1f59-4f1d-9f58-4f4d118644a8/","pageTitle":"域名嗅探要开启吗？分流作用、识别限制与核对方法","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>
