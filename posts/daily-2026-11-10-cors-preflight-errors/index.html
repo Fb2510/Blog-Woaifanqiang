@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>开代理后出现 CORS 错误？预检请求与响应头怎么查 · 小六有点六</title>
+<meta name="description" content="开代理后出现 CORS 错误怎么办？从失败请求入手，检查 OPTIONS 预检、Access-Control-Allow-Origin、实际响应与登录凭据模式，区分连接故障和跨域权限问题。">
+<meta name="keywords" content="代理CORS错误,OPTIONS预检失败,跨域请求排查,响应头检查">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-11-10-cors-preflight-errors/">
+<meta property="og:title" content="开代理后出现 CORS 错误？预检请求与响应头怎么查">
+<meta property="og:description" content="开代理后出现 CORS 错误怎么办？从失败请求入手，检查 OPTIONS 预检、Access-Control-Allow-Origin、实际响应与登录凭据模式，区分连接故障和跨域权限问题。">
+<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-11-10-cors-preflight-errors/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="开代理后出现 CORS 错误？预检请求与响应头怎么查">
+<meta name="twitter:description" content="开代理后出现 CORS 错误怎么办？从失败请求入手，检查 OPTIONS 预检、Access-Control-Allow-Origin、实际响应与登录凭据模式，区分连接故障和跨域权限问题。">
+<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-11-10T09:09:06&#43;08:00"><meta property="article:modified_time" content="2026-11-10T09:09:41&#43;08:00"><meta property="article:tag" content="新手入门"><meta property="article:tag" content="使用排障">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-11-10-cors-preflight-errors/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-11-10T09:09:41+08:00","datePublished":"2026-11-10T09:09:06+08:00","description":"开代理后出现 CORS 错误怎么办？从失败请求入手，检查 OPTIONS 预检、Access-Control-Allow-Origin、实际响应与登录凭据模式，区分连接故障和跨域权限问题。","headline":"开代理后出现 CORS 错误？预检请求与响应头怎么查","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-11-10-cors-preflight-errors/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-11-10-cors-preflight-errors/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-11-10-cors-preflight-errors/","name":"开代理后出现 CORS 错误？预检请求与响应头怎么查","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/artalk.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/artalk.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+<meta name="msvalidate.01" content="3D562902FFD6655EA5B649095B7D8365" />
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1Q9F5NES2X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-1Q9F5NES2X');
+</script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/xblog/google-analytics.js" data-xblog-google-analytics="G-1Q9F5NES2X" data-site-hosts="www.woaifanqiang.blog"></script></head>
+
+<body class="reader-page theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">开代理后出现 CORS 错误？预检请求与响应头怎么查</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">开代理后出现 CORS 错误？预检请求与响应头怎么查</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-11-10T09:09:06&#43;08:00">2026-11-10</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>开代理后网页能打开，某个功能却提示 CORS，先查失败发生在连接、预检还是响应读取阶段。只看到“跨域错误”几个字，不能直接判断节点失效；连续换节点，也未必能解决网站的权限配置问题。</p>
+<p>作者：小六｜资料核对日期：2026-11-10。本文适用于浏览器网页调用接口时报错的情况。</p>
+<h2 id="cors-">CORS 检查的“来源”是什么</h2>
+<p>可以把 CORS 理解为：接口告诉浏览器，哪些来源的网页脚本可以读取它的响应。部分请求在真正发送前，还要先询问接口是否允许。</p>
+<p>这里的来源由协议、主机名和端口组成。例如，<code>https://app.example.com</code> 调用 <code>https://api.example.com</code>，即使看起来属于同一家网站，也已经跨来源；同一来源下只改变路径，通常不算跨来源。<a href="https://developer.mozilla.org/en-US/docs/Glossary/Origin">MDN 对来源的定义</a>有对应示例。</p>
+<p>因此，在网页地址保持不变、只更换普通转发代理的情况下，出口 IP 改变本身不会把网页变成另一个来源。这是根据来源定义作出的判断。换节点后恢复，也可能是连接状况或服务端返回内容变了，仍需查看失败请求。</p>
+<h2 id="heading">先记录一次失败，再判断卡在哪一步</h2>
+<p>打开开发者工具，进入 Network（网络）面板，再重现一次问题。找到对应接口，点开 Headers（标头），查看地址、方法、状态码、请求头和响应头，同时保存控制台的完整报错。界面入口可参考 <a href="https://developer.chrome.com/docs/devtools/network/reference/#headers">Chrome 官方请求检查说明</a>。</p>
+<p>建议先用查看列表等只读操作复现，避免反复提交表单。整理记录时，把“未看到”与“确定没有”分开：开发者工具打开太晚，可能漏掉前面的请求。</p>
+<table>
+<thead>
+<tr>
+<th>看到的情况</th>
+<th>下一步重点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>没有有效 HTTP 响应，提示解析失败、超时或证书错误</td>
+<td>先查域名解析、连接与证书</td>
+</tr>
+<tr>
+<td>出现 OPTIONS，但没有后续实际请求</td>
+<td>检查预检状态和允许条件</td>
+</tr>
+<tr>
+<td>实际 GET、POST 已返回，网页仍报跨域错误</td>
+<td>核对实际响应的 CORS 标头</td>
+</tr>
+</tbody>
+</table>
+<p>MDN 专门说明，<code>CORS request did not succeed</code> 可能是连接层面的失败，浏览器扩展也可能拦截请求。看到这类提示时，不应一律归因于缺少跨域标头。参见 <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS/Errors/CORSDidNotSucceed">该错误的官方解释</a>。</p>
+<h2 id="options--204">OPTIONS 返回 204，为什么还不成功</h2>
+<p>OPTIONS 预检由浏览器自动发出，用来询问接下来要使用的方法、请求头等是否被允许。不是所有跨来源请求都需要预检；符合条件的简单请求可以直接发送，已有的预检缓存也可能让本次看不到 OPTIONS。参见 <a href="https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request">MDN 预检请求说明</a>。</p>
+<p>核对时，把请求中的条件与服务器给出的许可逐项对应：</p>
+<table>
+<thead>
+<tr>
+<th>标头</th>
+<th>通俗理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>请求里的 Origin</td>
+<td>哪个来源的网页在调用</td>
+</tr>
+<tr>
+<td>Access-Control-Request-Method</td>
+<td>接下来准备使用什么方法</td>
+</tr>
+<tr>
+<td>Access-Control-Request-Headers</td>
+<td>接下来准备带哪些需声明的请求头</td>
+</tr>
+<tr>
+<td>响应里的 Access-Control-Allow-Origin</td>
+<td>允许哪个来源读取</td>
+</tr>
+<tr>
+<td>Access-Control-Allow-Methods、Access-Control-Allow-Headers</td>
+<td>允许哪些方法、哪些请求头</td>
+</tr>
+</tbody>
+</table>
+<p>200、204 只是状态码，不代表这些许可已经匹配。预检通过后，实际响应仍要满足相应的 CORS 条件；不能只检查 OPTIONS 就结束。<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS#preflighted_requests">MDN 的完整交互示例</a>展示了这两个阶段。</p>
+<h2 id="heading-1">登录后才报错，重点看凭据模式</h2>
+<p>如果网页把请求设为 <code>credentials: &quot;include&quot;</code>，响应里的 <code>Access-Control-Allow-Origin</code> 就不能使用 <code>*</code>；需要明确允许的来源，以及 <code>Access-Control-Allow-Credentials: true</code>。这类问题常需要网站维护者核对，访客无法靠切换代理替服务器补齐许可。<a href="https://fetch.spec.whatwg.org/#cors-protocol-and-credentials">Fetch 标准的凭据组合表</a>列出了合法与不合法的组合。</p>
+<p>也不要为了消除报错，直接要求网页去掉登录凭据。原功能可能依赖登录状态；请求模式应当与功能需求一致。MDN 对<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS/Errors/CORSNotSupportingCredentials">凭据与通配符冲突</a>有单独说明。</p>
+<p>另一个容易误判的现象是：服务端返回了错误响应，但该响应缺少必要的跨域标头，网页最终只显示 CORS 错误。这是一种可能的排查方向，不能凭报错反推一定发生了什么。应结合实际状态码与网站日志确认。</p>
+<h2 id="heading-2">普通使用者怎么做有效对照</h2>
+<p>保持同一浏览器、同一登录状态、同一个功能，只改变代理连接方式，记录两次请求的差别。不要同时清缓存、换账号和换节点，否则很难知道哪个变化起了作用。若怀疑扩展拦截，可暂时停用相关扩展再做同条件检查。</p>
+<p>接口在地址栏或命令行中能访问，只能提供连接可达的线索，不能证明网页脚本已获跨来源读取许可。对于已经发出的实际请求，读取响应被拦截，也不等于服务端一定没有处理；提交操作应先核对结果再重试。</p>
+<p>如果出问题的是本地控制面板，可另看<a href="https://www.woaifanqiang.blog/posts/daily-2026-10-11-mihomo-dashboard-connection/">面板连接与控制接口排查</a>。向维护者反馈时，提供时间、脱敏后的地址、方法、状态码及完整错误类型即可；需要导出记录时，先参考 <a href="https://www.woaifanqiang.blog/posts/daily-2026-11-07-har-export-privacy-checklist/">HAR 隐私检查清单</a>。</p>
+<p>如果你分不清是预检失败还是实际响应被拦，可以整理上述信息交流，不要附上 Cookie、订阅地址或访问令牌：<a href="https://t.me/oldsix985">Telegram 联系我</a>。</p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/getting-started/"># 新手入门</a><a href="https://www.woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/posts/%E6%9C%BA%E5%9C%BA%E8%AF%84%E6%B5%8B%E4%B8%8E%E6%8E%A8%E8%8D%90/">← 上一篇</a><a href="https://www.woaifanqiang.blog/posts/daily-2026-11-09-subscription-one-click-import/">下一篇 →</a></nav>
+<section class="comments-section" data-pagefind-ignore><h2>评论</h2><div id="comments"></div></section>
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#cors-">CORS 检查的“来源”是什么</a><a class="level-2" href="#heading">先记录一次失败，再判断卡在哪一步</a><a class="level-2" href="#options--204">OPTIONS 返回 204，为什么还不成功</a><a class="level-2" href="#heading-1">登录后才报错，重点看凭据模式</a><a class="level-2" href="#heading-2">普通使用者怎么做有效对照</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
+<span>© 2026 小六</span>
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":true,"likes":true,"locale":"zh-CN","pageKey":"/p/e6aaab15-7fe7-42f2-97bd-2e2efcc9d6b0/","pageTitle":"开代理后出现 CORS 错误？预检请求与响应头怎么查","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>
