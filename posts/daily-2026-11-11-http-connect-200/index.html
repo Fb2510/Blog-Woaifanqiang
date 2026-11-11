@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>代理显示 200 Connection established，网页为什么还是打不开？ · 小六有点六</title>
+<meta name="description" content="看懂 200 Connection established 后网页打不开的原因。用 curl 区分 CONNECT 200、HTTP 000、证书错误和目标响应，核对 HTTP 代理隧道、TLS 握手及实际请求。">
+<meta name="keywords" content="200 Connection established,CONNECT 200 HTTP 000,curl代理状态码,HTTPS代理排障">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-11-11-http-connect-200/">
+<meta property="og:title" content="代理显示 200 Connection established，网页为什么还是打不开？">
+<meta property="og:description" content="看懂 200 Connection established 后网页打不开的原因。用 curl 区分 CONNECT 200、HTTP 000、证书错误和目标响应，核对 HTTP 代理隧道、TLS 握手及实际请求。">
+<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-11-11-http-connect-200/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="代理显示 200 Connection established，网页为什么还是打不开？">
+<meta name="twitter:description" content="看懂 200 Connection established 后网页打不开的原因。用 curl 区分 CONNECT 200、HTTP 000、证书错误和目标响应，核对 HTTP 代理隧道、TLS 握手及实际请求。">
+<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-11-11T09:04:26&#43;08:00"><meta property="article:modified_time" content="2026-11-11T09:05:04&#43;08:00"><meta property="article:tag" content="新手入门"><meta property="article:tag" content="使用排障">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-11-11-http-connect-200/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-11-11T09:05:04+08:00","datePublished":"2026-11-11T09:04:26+08:00","description":"看懂 200 Connection established 后网页打不开的原因。用 curl 区分 CONNECT 200、HTTP 000、证书错误和目标响应，核对 HTTP 代理隧道、TLS 握手及实际请求。","headline":"代理显示 200 Connection established，网页为什么还是打不开？","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-11-11-http-connect-200/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-11-11-http-connect-200/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-11-11-http-connect-200/","name":"代理显示 200 Connection established，网页为什么还是打不开？","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/artalk.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/artalk.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+<meta name="msvalidate.01" content="3D562902FFD6655EA5B649095B7D8365" />
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1Q9F5NES2X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-1Q9F5NES2X');
+</script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/xblog/google-analytics.js" data-xblog-google-analytics="G-1Q9F5NES2X" data-site-hosts="www.woaifanqiang.blog"></script></head>
+
+<body class="reader-page theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">代理显示 200 Connection established，网页为什么还是打不开？</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">代理显示 200 Connection established，网页为什么还是打不开？</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-11-11T09:04:26&#43;08:00">2026-11-11</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>看到 <code>200 Connection established</code> 时，先找后面有没有目标请求的 HTTP 状态码。第一行 200 是代理对 CONNECT 建立隧道请求的回应。打开 HTTPS 网页还需要在隧道内完成 TLS 握手，再发送网页请求。停在哪一步，决定接下来查代理入口、证书，还是网站响应。</p>
+<p>作者小六，资料核对日期为 2026 年 11 月 11 日。本文适用于通过 HTTP 代理访问 HTTPS 网站，并能在终端或日志中看到 CONNECT 的情况。</p>
+<h2 id="heading">代理和网站为什么会各返回一个状态码</h2>
+<p>通过本地 HTTP 代理访问 <code>https://example.com/</code> 时，应用先向代理发出 <code>CONNECT example.com:443</code>，请它建立一条到目标主机和端口的通道。代理用 2xx 表示进入隧道模式，常见的状态行就是 <code>200 Connection established</code>。HTTP 标准用状态码判断这一步是否成功。 <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-9.3.6">RFC 9110 的 CONNECT 说明</a></p>
+<p>接下来，应用通过这条通道与目标建立 TLS 连接，核对证书，然后发送 HTTPS 请求。收到的网页状态码对应这一次请求。比如代理答复 200，网站回 403，两条记录可以同时成立，说明应用走到了目标响应阶段。 <a href="https://everything.curl.dev/usingcurl/proxies/http.html#https-with-http-proxy">curl 项目的 HTTP 代理说明</a></p>
+<h2 id="-curl-">用 curl 把两个状态码分别打印出来</h2>
+<p>先在客户端找到正在监听的本地 HTTP 或混合端口。下面的 <code>7890</code> 是示例，按实际端口替换。命令在 PowerShell 7.3 或更新版本的默认参数传递模式下运行，使用公开示例站点发出一次 HEAD 请求。</p>
+<pre><code class="language-powershell">curl.exe -q --proxy http://127.0.0.1:7890 --noproxy '' --head --silent --show-error --connect-timeout 10 --max-time 20 --write-out '\nCONNECT=%{http_connect} HTTP=%{response_code}\n' https://example.com/
+$LASTEXITCODE
+</code></pre>
+<p><code>CONNECT</code> 取代理对建隧道请求的最后一次回应，<code>HTTP</code> 取目标请求的响应码。没有收到目标状态码时，curl 会把零显示为 <code>000</code>。最后单独打印的数字是 curl 退出码，可与错误原文一起保存。即便退出码为零，也要查看 HTTP 状态，因为这个命令允许读取 4xx 响应。 <a href="https://curl.se/docs/manpage.html">curl 参数手册</a> · <a href="https://curl.se/libcurl/c/CURLINFO_RESPONSE_CODE.html">curl 对目标响应码的定义</a></p>
+<p>空的 <code>--noproxy</code> 参数让本次命令覆盖环境变量里的代理排除名单，避免目标恰好被排除。PowerShell 7.3 起的新参数传递模式会保留空字符串。 <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_parsing#passing-arguments-that-contain-quote-characters">PowerShell 参数解析说明</a></p>
+<h2 id="heading-1">根据输出决定先查哪一段</h2>
+<table>
+<thead>
+<tr>
+<th>示例输出</th>
+<th>先查什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CONNECT=000 HTTP=000</code></td>
+<td>看错误原文，确认本地代理进程、监听端口及代理类型</td>
+</tr>
+<tr>
+<td><code>CONNECT=407 HTTP=000</code></td>
+<td>核对代理入口的认证要求与应用的代理设置</td>
+</tr>
+<tr>
+<td><code>CONNECT=502 HTTP=000</code></td>
+<td>查代理建立隧道的日志，确认目标地址、端口及到目标的连接</td>
+</tr>
+<tr>
+<td><code>CONNECT=200 HTTP=000</code></td>
+<td>已看到建隧道回应，接着查 TLS、连接重置或等待响应超时</td>
+</tr>
+<tr>
+<td><code>CONNECT=200 HTTP=403</code></td>
+<td>已有目标响应，核对目标路径、访问条件和响应中的请求编号</td>
+</tr>
+</tbody>
+</table>
+<p>这些组合用于判断阶段。比如同样出现 502，如果它在 <code>HTTP</code> 一栏，应从目标请求的网关或服务日志查起。记录报错时把字段名和数字一并留下，方便维护者定位。 <a href="https://www.woaifanqiang.blog/posts/daily-2026-10-28-http-gateway-errors/">本站的网关错误排查指南</a></p>
+<h3 id="-200-000">隧道返回 200，目标却显示 000</h3>
+<p>如果错误里是 curl 退出码 35，优先看 TLS 握手失败的详细提示。退出码 60 指向证书验证，可以核对域名、设备时间和工具使用的信任来源。退出码 28 表示触及超时限制，需要结合客户端日志判断是在握手还是在等待网页回应。比如只有一个域名报 60，就先检查该域名收到的证书和错误原文。 <a href="https://everything.curl.dev/cmdline/exitcode.html">curl 退出码说明</a> · <a href="https://www.woaifanqiang.blog/posts/daily-2026-10-05-proxy-tls-certificate-errors/">本站的证书错误检查方法</a></p>
+<h3 id="heading-2">目标已经回了状态，浏览器为什么还在转圈</h3>
+<p>先把终端测试的地址和浏览器真正失败的地址对齐。比如首页返回 200，但图片、登录接口或文件请求在另一个域名上失败，就在浏览器的 Network 面板记录那条请求的方法、地址和状态。把它与客户端同一时间的连接记录对照，看看两者是否用了相同的代理入口和出站规则。</p>
+<p>如果终端显示 <code>HTTP=301</code> 或 <code>302</code>，这条命令会停在收到的重定向响应。可以查看响应头中的 <code>Location</code>，核对浏览器接下来访问了哪个地址。如果新地址换了主机名，分流规则和后续连接结果也可能跟着变化。这样可以把首跳状态与实际卡住的请求对应起来。 <a href="https://curl.se/docs/manpage.html#-L">curl 手册中的重定向选项</a></p>
+<h3 id="heading-3">示例域名能通，原来的网站还是打不开</h3>
+<p>用同一个入口、同一个节点，对原来失败的公开页面做一次对照。示例域名的结果只覆盖那一次请求。HEAD 只检查响应头，有些网站对 HEAD 和浏览器发出的 GET 有不同处理。如果 HEAD 显示 405，可以对确认允许访问的公开页面用普通 GET 比较。若页面依赖登录或其他接口，再核对浏览器里实际失败的那条请求。</p>
+<p>切换节点前后保留目标地址、两个状态码和错误原文，尽量只改变节点。若代理入口对目标采取了直连分流，先从客户端记录核实实际出口。多个无关目标都在同一阶段报错时，可以优先检查它们共用的入口和链路。如果只有一个目标反复失败，先收集该目标的时间、状态与错误，交给能查看相应日志的人。</p>
+<p>如果你遇到 <code>CONNECT=200 HTTP=000</code>，可以带着两个状态码、curl 退出码和脱敏后的错误原文来交流。<a href="https://t.me/oldsix985">Telegram 联系我</a></p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/getting-started/"># 新手入门</a><a href="https://www.woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/posts/%E6%9C%BA%E5%9C%BA%E8%AF%84%E6%B5%8B%E4%B8%8E%E6%8E%A8%E8%8D%90/">← 上一篇</a><a href="https://www.woaifanqiang.blog/posts/daily-2026-11-10-cors-preflight-errors/">下一篇 →</a></nav>
+<section class="comments-section" data-pagefind-ignore><h2>评论</h2><div id="comments"></div></section>
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#heading">代理和网站为什么会各返回一个状态码</a><a class="level-2" href="#-curl-">用 curl 把两个状态码分别打印出来</a><a class="level-2" href="#heading-1">根据输出决定先查哪一段</a><a class="level-3" href="#-200-000">隧道返回 200，目标却显示 000</a><a class="level-3" href="#heading-2">目标已经回了状态，浏览器为什么还在转圈</a><a class="level-3" href="#heading-3">示例域名能通，原来的网站还是打不开</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
+<span>© 2026 小六</span>
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":true,"likes":true,"locale":"zh-CN","pageKey":"/p/89ec4259-0e34-470b-8b41-c234f31ab172/","pageTitle":"代理显示 200 Connection established，网页为什么还是打不开？","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>
