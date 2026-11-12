@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>开代理后内网短域名打不开？Windows DNS 后缀与解析路径怎么查 · 小六有点六</title>
+<meta name="description" content="排查 Windows 开启代理后内网短域名打不开的问题。通过短名与完整域名查询对照，核对 DNS 搜索后缀、公司 VPN 的 NRPT 策略与 Chrome 代理路径。">
+<meta name="keywords" content="内网短域名打不开,Windows DNS 后缀,NRPT 排查,代理内网 DNS">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-11-12-windows-dns-short-names/">
+<meta property="og:title" content="开代理后内网短域名打不开？Windows DNS 后缀与解析路径怎么查">
+<meta property="og:description" content="排查 Windows 开启代理后内网短域名打不开的问题。通过短名与完整域名查询对照，核对 DNS 搜索后缀、公司 VPN 的 NRPT 策略与 Chrome 代理路径。">
+<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-11-12-windows-dns-short-names/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="开代理后内网短域名打不开？Windows DNS 后缀与解析路径怎么查">
+<meta name="twitter:description" content="排查 Windows 开启代理后内网短域名打不开的问题。通过短名与完整域名查询对照，核对 DNS 搜索后缀、公司 VPN 的 NRPT 策略与 Chrome 代理路径。">
+<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-11-12T09:06:47&#43;08:00"><meta property="article:modified_time" content="2026-11-12T09:07:20&#43;08:00"><meta property="article:tag" content="新手入门"><meta property="article:tag" content="使用排障">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-11-12-windows-dns-short-names/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-11-12T09:07:20+08:00","datePublished":"2026-11-12T09:06:47+08:00","description":"排查 Windows 开启代理后内网短域名打不开的问题。通过短名与完整域名查询对照，核对 DNS 搜索后缀、公司 VPN 的 NRPT 策略与 Chrome 代理路径。","headline":"开代理后内网短域名打不开？Windows DNS 后缀与解析路径怎么查","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-11-12-windows-dns-short-names/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-11-12-windows-dns-short-names/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-11-12-windows-dns-short-names/","name":"开代理后内网短域名打不开？Windows DNS 后缀与解析路径怎么查","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/artalk.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/artalk.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+<meta name="msvalidate.01" content="3D562902FFD6655EA5B649095B7D8365" />
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1Q9F5NES2X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-1Q9F5NES2X');
+</script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/xblog/google-analytics.js" data-xblog-google-analytics="G-1Q9F5NES2X" data-site-hosts="www.woaifanqiang.blog"></script></head>
+
+<body class="reader-page theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">开代理后内网短域名打不开？Windows DNS 后缀与解析路径怎么查</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">开代理后内网短域名打不开？Windows DNS 后缀与解析路径怎么查</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-11-12T09:06:47&#43;08:00">2026-11-12</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p>开启代理后，内网的 <code>wiki</code> 打不开，先用同一台 Windows 电脑查短名和完整域名。完整域名能解析时，优先查短名补了哪个后缀。完整域名也查不到时，继续核对内网 DNS 的查询路径。两种名称都有正确地址，网页仍打不开，就查应用的代理选择和到目标的连接。</p>
+<p>作者小六，资料核对日期为 2026 年 11 月 12 日。本文适用于原本能用 DNS 短名访问内网站点的 Windows 电脑，也适合公司 VPN 与个人代理同时运行时做只读检查。</p>
+<h2 id="windows-">Windows 怎样把短名补成完整域名</h2>
+<p>像 <code>wiki</code> 这样只有一段的名字叫单标签名称。Windows DNS 客户端可以按搜索列表给它补后缀。比如配置了 <code>office.example</code>，它就可以尝试查 <code>wiki.office.example</code>。列表有多个后缀时，会按配置顺序尝试。列表为空时，系统还可依据主 DNS 后缀和连接专用后缀处理短名，具体取决于本机配置。 <a href="https://learn.microsoft.com/en-us/windows-server/networking/dns/queries-lookups">微软的 DNS 查询说明</a>、<a href="https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-dns-client-dnssuffixsearchorder">DNS 后缀搜索顺序</a></p>
+<p>同一个短名在两个后缀下可能对应两台不同的机器。换 Wi-Fi、接入 VPN 或启用虚拟网卡后，如果结果变了，先比对回答里的名称和地址。单看地址变化容易把正常的多地址记录也当成异常。</p>
+<h2 id="-powershell-">在 PowerShell 里做短名和全名对照</h2>
+<p>先从原来能用的书签、内网说明或维护者那里确认完整域名。下面的两个名称是示例，请换成实际短名和全名。保留全名末尾的点，让第二条命令按完整名称查询。浏览器里仍使用原来的完整网址。</p>
+<pre><code class="language-powershell">Resolve-DnsName -Name 'wiki' -DnsOnly -NoHostsFile
+Resolve-DnsName -Name 'wiki.office.example.' -DnsOnly -NoHostsFile
+</code></pre>
+<p><code>-DnsOnly</code> 限定为 DNS 查询，<code>-NoHostsFile</code> 跳过 hosts 文件。这组命令用于观察 Windows DNS 客户端的结果，回答仍可能来自缓存。记录返回名称、地址或错误原文。在允许切换个人代理的环境里，可以固定 Wi-Fi 和公司 VPN，分别在个人代理开启和关闭时执行一次。 <a href="https://learn.microsoft.com/en-us/powershell/module/dnsclient/resolve-dnsname?view=windowsserver2025-ps">Resolve-DnsName 参数说明</a>、<a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig">Windows DNS 缓存说明</a></p>
+<table>
+<thead>
+<tr>
+<th>对照结果</th>
+<th>接下来检查</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>短名失败，完整域名成功</td>
+<td>核对搜索后缀及其顺序，确认是否补到了预期的域名</td>
+</tr>
+<tr>
+<td>两者都有回答，短名却指向别的名称</td>
+<td>核对是否先命中另一后缀，也检查 CNAME 别名关系</td>
+</tr>
+<tr>
+<td>两者均失败</td>
+<td>核对完整名称、内网 DNS 的连通性和负责该域的解析规则</td>
+</tr>
+<tr>
+<td>两者都返回预期地址，只有应用失败</td>
+<td>对照应用实际使用的代理和解析方式，再看连接错误</td>
+</tr>
+</tbody>
+</table>
+<h3 id="heading">短名失效时查看哪些系统字段</h3>
+<p>运行 <code>ipconfig /all</code>，在输出中找到全局的 DNS 后缀搜索列表，再查看相关网卡的连接专用 DNS 后缀和 DNS 服务器。优先对照当前 Wi-Fi、以太网和 VPN 适配器。记录开启代理前后哪一项变化。网卡上列出的 DNS 服务器反映配置，实际查询还可能受缓存、VPN 策略或代理接管影响。 <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig">ipconfig 官方说明</a></p>
+<p>如果搜索列表包含好几个相似后缀，先向维护者确认预期域名。书签使用维护者提供的完整网址，可以避开对短名自动补全的依赖，也方便同事复现同一个目标。</p>
+<h3 id="-vpn--dns-">完整域名也失败时查看 VPN 的 DNS 策略</h3>
+<p>部分 Windows VPN 配置使用 NRPT，也就是名称解析策略表，指定某个域名或后缀如何查询。例如，办公域可能交给公司 DNS，其他名称继续使用普通网络的设置。连接公司 VPN 后，用下列命令查看 Windows 当前生效的 NRPT 策略。</p>
+<pre><code class="language-powershell">Get-DnsClientNrptPolicy -Effective
+</code></pre>
+<p>在输出中找与完整域名有关的命名空间及 DNS 服务器。若 VPN 软件自带解析功能，也查看该软件的生效设置和日志。办公域的记录由内网解析服务管理时，应使用维护者指定的查询路径。把完整域名的失败结果和相应策略交给维护者，有助于区分策略未下发与查询到不了服务器。 <a href="https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/vpn/vpn-name-resolution">微软的 VPN 名称解析说明</a>、<a href="https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientnrptpolicy?view=windowsserver2025-ps">NRPT 查询命令</a></p>
+<h2 id="windows--1">Windows 查到了地址，浏览器还打不开怎么办</h2>
+<p>如果 Chrome 的这次请求确实走显式 HTTP 代理，目标名称会交给代理处理。Windows 命令查到的地址与浏览器最终使用的解析路径可能不同。还有一种情况是代理绕过规则 <code>&lt;local&gt;</code> 只匹配无点的主机名，因此短名和完整域名即使指向同一服务，也可能走两条路径。对照客户端连接记录中的目标名称、命中规则和出口，才能看出差别。 <a href="https://chromium.googlesource.com/chromium/src/%2B/HEAD/net/docs/proxy.md#http-proxy-scheme">Chromium 代理说明</a></p>
+<p>如果地址已确认，错误发生在连接设备时，可以按局域网访问指南继续查直连和 TUN 接管。如果命令与应用显示的查询结果不同，再检查系统、浏览器和客户端分别使用的解析路径。 <a href="https://www.woaifanqiang.blog/posts/daily-2026-10-05-proxy-lan-access/">局域网访问排查</a>、<a href="https://www.woaifanqiang.blog/posts/daily-2026-10-02-proxy-dns-settings/">三处 DNS 设置的区别</a></p>
+<p>如果你也遇到了短名和全名表现不同，可以带上脱敏后的两个查询结果、代理模式和 VPN 连接状态来交流。<a href="https://t.me/oldsix985">Telegram 联系我</a></p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/getting-started/"># 新手入门</a><a href="https://www.woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/posts/%E6%9C%BA%E5%9C%BA%E8%AF%84%E6%B5%8B%E4%B8%8E%E6%8E%A8%E8%8D%90/">← 上一篇</a><a href="https://www.woaifanqiang.blog/posts/daily-2026-11-11-http-connect-200/">下一篇 →</a></nav>
+<section class="comments-section" data-pagefind-ignore><h2>评论</h2><div id="comments"></div></section>
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#windows-">Windows 怎样把短名补成完整域名</a><a class="level-2" href="#-powershell-">在 PowerShell 里做短名和全名对照</a><a class="level-3" href="#heading">短名失效时查看哪些系统字段</a><a class="level-3" href="#-vpn--dns-">完整域名也失败时查看 VPN 的 DNS 策略</a><a class="level-2" href="#windows--1">Windows 查到了地址，浏览器还打不开怎么办</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
+<span>© 2026 小六</span>
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":true,"likes":true,"locale":"zh-CN","pageKey":"/p/0149bdc3-671c-47c8-8397-6dfa00fabf4c/","pageTitle":"开代理后内网短域名打不开？Windows DNS 后缀与解析路径怎么查","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>
