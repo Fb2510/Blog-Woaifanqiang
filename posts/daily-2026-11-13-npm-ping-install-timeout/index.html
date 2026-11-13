@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="anime">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>npm ping 正常但 npm install 超时？代理与下载地址怎么查 · 小六有点六</title>
+<meta name="description" content="排查 npm ping 正常但 npm install 超时。核对终端代理、作用域仓库、package-lock.json 的 resolved、Git 依赖与安装脚本的实际下载地址。">
+<meta name="keywords" content="npm install 超时,npm ping 正常,npm 代理,package-lock resolved">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://www.woaifanqiang.blog/posts/daily-2026-11-13-npm-ping-install-timeout/">
+<meta property="og:title" content="npm ping 正常但 npm install 超时？代理与下载地址怎么查">
+<meta property="og:description" content="排查 npm ping 正常但 npm install 超时。核对终端代理、作用域仓库、package-lock.json 的 resolved、Git 依赖与安装脚本的实际下载地址。">
+<meta property="og:url" content="https://www.woaifanqiang.blog/posts/daily-2026-11-13-npm-ping-install-timeout/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="小六有点六">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png"><meta property="og:image:alt" content="小六有点六">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="npm ping 正常但 npm install 超时？代理与下载地址怎么查">
+<meta name="twitter:description" content="排查 npm ping 正常但 npm install 超时。核对终端代理、作用域仓库、package-lock.json 的 resolved、Git 依赖与安装脚本的实际下载地址。">
+<meta name="twitter:image" content="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<meta name="author" content="小六"><meta property="article:published_time" content="2026-11-13T09:05:36&#43;08:00"><meta property="article:modified_time" content="2026-11-13T09:06:16&#43;08:00"><meta property="article:tag" content="使用排障">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-11-13-npm-ping-install-timeout/#article","@type":"BlogPosting","author":{"@type":"Person","name":"小六"},"dateModified":"2026-11-13T09:06:16+08:00","datePublished":"2026-11-13T09:05:36+08:00","description":"排查 npm ping 正常但 npm install 超时。核对终端代理、作用域仓库、package-lock.json 的 resolved、Git 依赖与安装脚本的实际下载地址。","headline":"npm ping 正常但 npm install 超时？代理与下载地址怎么查","inLanguage":"zh-CN","mainEntityOfPage":{"@id":"https://www.woaifanqiang.blog/posts/daily-2026-11-13-npm-ping-install-timeout/","@type":"WebPage"},"url":"https://www.woaifanqiang.blog/posts/daily-2026-11-13-npm-ping-install-timeout/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.woaifanqiang.blog/","name":"小六有点六","position":1},{"@type":"ListItem","item":"https://www.woaifanqiang.blog/posts/daily-2026-11-13-npm-ping-install-timeout/","name":"npm ping 正常但 npm install 超时？代理与下载地址怎么查","position":2}]}]}</script>
+
+<script>(()=>{let mode='system';try{const saved=localStorage.getItem('reader-theme');if(['system','light','dark'].includes(saved))mode=saved}catch{}const root=document.documentElement;root.dataset.colorMode=mode;root.classList.toggle('dark',mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))})();</script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/style.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/advertisements.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/search.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/search.js"></script>
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/layouts.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/effects.css"><link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/skin.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/viewer.css">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/reader.css">
+<link rel="icon" href="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png">
+<link rel="stylesheet" href="https://www.woaifanqiang.blog/assets/theme/artalk.css"><script defer src="https://www.woaifanqiang.blog/assets/theme/artalk.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/theme.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/reader.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/viewer.js"></script>
+<script defer src="https://www.woaifanqiang.blog/assets/theme/image-viewer.js"></script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/theme/interactions.js"></script>
+
+<meta name="msvalidate.01" content="3D562902FFD6655EA5B649095B7D8365" />
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1Q9F5NES2X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-1Q9F5NES2X');
+</script>
+
+<script defer src="https://www.woaifanqiang.blog/assets/xblog/google-analytics.js" data-xblog-google-analytics="G-1Q9F5NES2X" data-site-hosts="www.woaifanqiang.blog"></script></head>
+
+<body class="reader-page theme-anime article-page">
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-header">
+<div class="header-inner">
+<a class="brand" href="https://www.woaifanqiang.blog/"><img src="https://www.woaifanqiang.blog/assets/media/4b8abbf7-c63f-40a4-b995-794ed4e9e17e.png" alt="" width="38" height="38"><span>小六有点六</span></a>
+<nav id="site-navigation" aria-label="站点导航"><a href="https://www.woaifanqiang.blog/">首页</a></nav>
+<a class="search-toggle" href="https://www.woaifanqiang.blog/search/" data-open-dialog="search-dialog" aria-haspopup="dialog" aria-controls="search-dialog" aria-label="搜索" title="搜索"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+<button id="theme-mode" class="theme-toggle theme-cycle" type="button" aria-label="明暗模式：跟随系统，点击切换为明亮" title="跟随系统 · 点击切换为明亮">
+<svg class="theme-icon-system" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+<svg class="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/></svg>
+<svg class="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<span id="theme-mode-status" class="visually-hidden" role="status" aria-live="polite"></span>
+<button id="menu-toggle" class="menu-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="打开菜单" title="打开菜单">
+<svg class="menu-icon-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<svg class="menu-icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+</button>
+</div>
+</header>
+
+<div class="page-viewport article-viewport"><div class="page-scroll article-scroll">
+<main id="main" tabindex="-1" class="anime-workspace theme-workspace theme-article">
+
+<nav class="breadcrumbs" aria-label="面包屑导航"><ol><li><a href="https://www.woaifanqiang.blog/">小六有点六</a></li><li><span aria-current="page">npm ping 正常但 npm install 超时？代理与下载地址怎么查</span></li></ol></nav>
+
+
+<div class="anime-letter"><div class="letter-paper">
+<article data-pagefind-body>
+<header class="article-header">
+<div class="eyebrow" data-pagefind-ignore>
+手账正文</div>
+<h1 data-pagefind-meta="title">npm ping 正常但 npm install 超时？代理与下载地址怎么查</h1>
+<div class="metadata" data-pagefind-ignore><span>小六</span><time datetime="2026-11-13T09:05:36&#43;08:00">2026-11-13</time><span><span id="page-views">—</span> 次阅读</span></div>
+<div class="chips" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/categories/airport-guides/">机场指南</a></div>
+</header>
+<div class="prose"><p><code>npm ping</code> 返回 PONG，<code>npm install</code> 却超时，先找安装日志里失败的地址。PONG 说明 npm 的包仓库探测请求得到了回应。安装还可能访问另一个仓库、下载压缩包、调用 Git，或者运行会联网的安装脚本。知道卡在哪一步，才知道该查终端代理还是项目配置。 <a href="https://docs.npmjs.com/cli/v11/commands/npm-ping/">npm ping 官方说明</a></p>
+<p>作者小六，资料核对日期为 2026 年 11 月 13 日。本文适用于电脑已开启代理，但在终端、编辑器或构建环境里安装 npm 依赖失败的情况。</p>
+<h2 id="heading">在安装失败的目录里核对仓库和代理</h2>
+<p>进入原项目，用出错的同一个终端查看以下设置。编辑器终端、外部终端和容器里的环境变量可能不同，项目目录下的 <code>.npmrc</code> 也会影响该项目的 npm 设置。</p>
+<pre><code class="language-text">npm config get registry
+npm config get https-proxy
+npm config get noproxy
+npm ping
+</code></pre>
+<p><code>https-proxy</code> 显示空值时，再检查该终端是否设置了 <code>HTTPS_PROXY</code> 或 <code>HTTP_PROXY</code>。npm 的请求库也会读取这些变量。对照实际代理入口、端口和绕过名单，尤其留意客户端更换端口后留下的旧值。命令可能显示带账号信息的代理地址，检查时在本机阅读即可。 <a href="https://docs.npmjs.com/cli/v11/configuring-npm/npmrc/">npm 配置来源</a>、<a href="https://docs.npmjs.com/cli/v11/using-npm/config/#https-proxy">HTTPS 代理配置</a></p>
+<p>如果只有 <code>@team/widget</code> 这种带作用域的包失败，查看 <code>npm config get @team:registry</code>，把 <code>@team</code> 换成实际作用域。该作用域可能绑定了单独的仓库。用同一个终端对配置中确认过的仓库运行 <code>npm ping --registry=&lt;仓库地址&gt;</code>，并核对失败包是否有读取权限。 <a href="https://docs.npmjs.com/cli/v11/using-npm/scope/#associating-a-scope-with-a-registry">npm 作用域仓库说明</a></p>
+<h2 id="heading-1">包信息能查到，压缩包从哪里下载</h2>
+<p>下面用公开包演示查询写法。排查自己的项目时，把包名和版本换成安装日志中出现的值。指定版本可以避免把当前最新版的信息拿来对照旧锁文件。</p>
+<pre><code class="language-text">npm view lodash@4.17.21 dist.tarball
+</code></pre>
+<p>这条命令读取仓库提供的下载地址。实际安装时，再打开项目的 <code>package-lock.json</code>，找到同一个包和版本，核对 <code>resolved</code>。包信息可能从一个域名取得，压缩包却从另一个域名下载。此时优先看失败的 <code>.tgz</code> 请求用了哪个代理出口，并对照该域名的 DNS 与连接错误。 <a href="https://docs.npmjs.com/cli/v11/commands/npm-view/">npm view 字段查询</a>、<a href="https://docs.npmjs.com/cli/v11/configuring-npm/package-lock-json/">锁文件的 resolved 字段</a></p>
+<h3 id="-registry">为什么改了 registry，日志还出现旧仓库</h3>
+<p>锁文件中来自自定义仓库的地址，通常会在更换默认仓库后继续使用。默认公共仓库地址的处理有特殊规则，<code>replace-registry-host</code> 设置也会影响替换行为。用失败请求中的主机名和锁文件逐条对照，先确认旧地址来自项目、锁文件还是作用域设置。需要迁移仓库时，按项目约定更新锁文件，并检查变更是否符合预期。 <a href="https://docs.npmjs.com/cli/v11/using-npm/registry/">npm 仓库规则</a>、<a href="https://docs.npmjs.com/cli/v11/using-npm/config/#replace-registry-host">仓库地址替换配置</a></p>
+<h2 id="heading-2">看日志里的命令，判断谁在联网</h2>
+<table>
+<thead>
+<tr>
+<th>日志线索</th>
+<th>检查方向</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>包名对应的查询地址失败</td>
+<td>核对仓库、作用域以及该仓库的访问权限</td>
+</tr>
+<tr>
+<td>指向具体版本的 <code>.tgz</code> 下载失败</td>
+<td>核对下载主机与锁文件，查看这条请求的代理路径</td>
+</tr>
+<tr>
+<td>出现失败的 <code>git ls-remote</code> 或克隆命令</td>
+<td>核对仓库地址用的是 HTTPS 还是 SSH，再查 Git 的连接设置</td>
+</tr>
+<tr>
+<td>错误紧跟在 <code>postinstall</code> 等脚本之后</td>
+<td>查看脚本输出中的实际命令与下载地址</td>
+</tr>
+</tbody>
+</table>
+<p>Git 依赖的来源可能写在锁文件里，npm 安装此类依赖时会运行 Git。若日志显示是 Git 命令超时，可以直接从同一终端核对那个仓库的连接。安装脚本也可能启动自己的下载工具，要查那个工具实际采用的代理配置。对可信项目，可以用 <code>npm install --foreground-scripts</code> 重现一次，方便看到脚本输出。该命令会执行安装并运行相关脚本，适合本来就需要安装该项目的情况。 <a href="https://docs.npmjs.com/cli/v11/commands/npm-install/">npm 安装说明</a>、<a href="https://docs.npmjs.com/cli/v11/using-npm/scripts/">生命周期脚本</a>、<a href="https://www.woaifanqiang.blog/posts/daily-2026-10-08-git-proxy-transport/">本站 Git 代理排查</a></p>
+<h3 id="heading-3">报错有代码时，先看它发生在谁身上</h3>
+<p>看到 <code>ENOTFOUND</code>，先核对错误原文里的主机名。它可能是代理主机，也可能是实际下载主机。看到 <code>ETIMEDOUT</code>，再看失败记录对应连接还是下载过程。如果提示证书校验失败，检查该终端的证书信任设置，以及代理是否影响了证书链。先确认项目或公司要求的 CA，再按相应文档配置。 <a href="https://nodejs.org/api/errors.html#common-system-errors">Node.js 常见系统错误</a>、<a href="https://docs.npmjs.com/cli/v11/using-npm/config/#strict-ssl">npm 的证书校验配置</a></p>
+<h2 id="heading-4">用一次对照确认改动是否有效</h2>
+<p>记录失败的包版本、请求主机和错误原文。每次只改一个已确认的设置，再从同一目录验证同一环节。例如，仓库探测正常且只剩一个压缩包超时，就重点观察这条下载请求。如果是在容器里构建，确认发请求的是容器内的 npm，并核对容器看到的代理地址。 <a href="https://www.woaifanqiang.blog/posts/daily-2026-10-12-docker-container-proxy/">本站的 Docker 代理排查</a></p>
+<p>分享日志前，删去令牌、带凭据的地址和私有仓库路径。npm 会尝试隐藏部分敏感值，仍需自己检查。想交流是哪一步超时，可以带上脱敏后的失败命令、请求类型和代理模式。 <a href="https://docs.npmjs.com/cli/v11/using-npm/logging/">npm 日志与敏感信息说明</a></p>
+<p><a href="https://t.me/oldsix985">Telegram 联系我</a></p>
+</div>
+<div class="article-likes" data-pagefind-ignore>
+<button id="page-like" class="like-button" type="button" aria-pressed="false" aria-describedby="page-like-message" disabled>
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+<span id="page-like-label">点赞</span><span id="page-like-count">—</span>
+</button><p id="page-like-message" role="status"></p>
+</div>
+<div class="article-tags" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/tags/troubleshooting/"># 使用排障</a></div>
+<nav class="pagination" aria-label="相邻文章" data-pagefind-ignore><a href="https://www.woaifanqiang.blog/posts/%E6%9C%BA%E5%9C%BA%E8%AF%84%E6%B5%8B%E4%B8%8E%E6%8E%A8%E8%8D%90/">← 上一篇</a><a href="https://www.woaifanqiang.blog/posts/daily-2026-11-12-windows-dns-short-names/">下一篇 →</a></nav>
+<section class="comments-section" data-pagefind-ignore><h2>评论</h2><div id="comments"></div></section>
+</article>
+</div><div class="article-rail">
+<aside class="toc"><div>本篇目录</div><nav aria-label="文章目录"><a class="level-2" href="#heading">在安装失败的目录里核对仓库和代理</a><a class="level-2" href="#heading-1">包信息能查到，压缩包从哪里下载</a><a class="level-3" href="#-registry">为什么改了 registry，日志还出现旧仓库</a><a class="level-2" href="#heading-2">看日志里的命令，判断谁在联网</a><a class="level-3" href="#heading-3">报错有代码时，先看它发生在谁身上</a><a class="level-2" href="#heading-4">用一次对照确认改动是否有效</a></nav></aside>
+</div></div>
+
+</main>
+</div>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部" hidden>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14M12 20V8m-5 5 5-5 5 5"/></svg>
+</button>
+</div>
+
+<footer class="site-footer">
+<nav class="friend-links" aria-label="友情链接"><span class="friend-links-label">友情链接</span><a href="https://goflybit.com/#/register?code=VDhOlcf4" target="_blank" rel="noopener noreferrer">FlyBit机场</a><a href="https://home.99ba2026.best/#/register?code=lsE7jbti" target="_blank" rel="noopener noreferrer">99吧</a><a href="https://t.me/oldsix985" target="_blank" rel="noopener noreferrer">Telegram联系我</a></nav>
+<span>© 2026 小六</span>
+</footer>
+
+
+
+<dialog id="search-dialog" class="reader-dialog site-search" aria-labelledby="search-title" data-reader-dialog data-pagefind-ignore>
+<header class="reader-dialog-header"><h2 id="search-title">搜索文章</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭搜索" title="关闭搜索">×</button></header>
+<div class="reader-dialog-body">
+
+<div id="site-search-ui" data-module="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.js" data-stylesheet="https://www.woaifanqiang.blog/pagefind/pagefind-component-ui.css" hidden>
+
+<pagefind-config bundle-path="https://www.woaifanqiang.blog/pagefind/" base-url="https://www.woaifanqiang.blog/" lang="zh-cn" no-worker></pagefind-config>
+<pagefind-input placeholder="搜索文章标题或正文"></pagefind-input>
+<pagefind-summary></pagefind-summary>
+<pagefind-results></pagefind-results>
+</div>
+<p id="search-status" class="search-status" role="status">正在加载搜索…</p>
+<button id="search-retry" class="button" type="button" hidden>重新加载</button>
+
+</div>
+</dialog>
+
+<script id="blog-comments-config" type="application/json">{"comments":true,"likes":true,"locale":"zh-CN","pageKey":"/p/53f76384-9a8c-499a-8a24-b41b2f7a507c/","pageTitle":"npm ping 正常但 npm install 超时？代理与下载地址怎么查","server":"https://upfqpobmiewm.sealosgzg.site","site":"xblog-e425fea9-b5c2-40db-95aa-b4065d6d8546","views":true,"viewsBase":0}</script>
+
+</body>
+</html>
